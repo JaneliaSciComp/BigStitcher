@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>41.0.0</version>
+		<version>42.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -111,8 +111,6 @@
 		<imglib2-roi.version>0.15.1</imglib2-roi.version>
 		<n5-imglib2.version>7.0.2</n5-imglib2.version>
 		<bigdataviewer-vistools.version>1.0.0-beta-36</bigdataviewer-vistools.version>
-		-->
-
 		<imglib2.version>7.1.4</imglib2.version>
 		<imglib2-algorithm.version>0.18.0</imglib2-algorithm.version>
 		<bigdataviewer-core.version>10.6.4</bigdataviewer-core.version>
@@ -120,8 +118,13 @@
 		<n5-universe.version>2.1.0</n5-universe.version>
 		<n5-version>3.4.1</n5-version>
 		<n5-zarr-version>1.5.0</n5-zarr-version>
+		-->
 
-		<multiview-reconstruction.version>7.0.0</multiview-reconstruction.version>
+		<multiview-reconstruction.version>7.0.7</multiview-reconstruction.version>
+
+		<bigdataviewer-n5.version>1.0.2</bigdataviewer-n5.version>
+		<mpicbg.mpicbg.version>1.6.5</mpicbg.mpicbg.version>
+		<generic-archiver.version>1.1.0</generic-archiver.version>
 
 	</properties>
 
