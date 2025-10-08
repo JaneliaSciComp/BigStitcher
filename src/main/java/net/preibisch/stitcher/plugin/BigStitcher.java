@@ -23,49 +23,23 @@ package net.preibisch.stitcher.plugin;
 
 
 import java.awt.Button;
-import java.awt.Menu;
-import java.awt.MenuBar;
 import java.awt.TextField;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.scijava.command.Command;
 import org.scijava.plugin.Plugin;
-import org.scijava.plugin.PluginIndex;
 
-import ij.IJ;
-import ij.ImageJ;
-import ij.Menus;
 import ij.plugin.PlugIn;
 import net.preibisch.legacy.io.IOFunctions;
-import net.preibisch.legacy.io.TextFileAccess;
-import net.preibisch.mvrecon.fiji.plugin.Interest_Point_Registration;
-import net.preibisch.mvrecon.fiji.plugin.queryXML.GenericLoadParseQueryXML;
 import net.preibisch.mvrecon.fiji.plugin.queryXML.LoadParseQueryXML;
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.XmlIoSpimData2;
 import net.preibisch.stitcher.gui.StitchingExplorer;
 
-@Plugin(type = Command.class, menuPath = "Plugins>BigStitcher>BigStitcher")
+@Plugin(type = Command.class, menuPath = "Plugins>BigStitcher>BigStitcher (new)")
 public class BigStitcher implements Command, PlugIn
 {
 	boolean newDataset = false;
@@ -111,8 +85,6 @@ public class BigStitcher implements Command, PlugIn
 	{
 		IOFunctions.printIJLog = true;
 
-		//new net.imagej.ImageJ();
-		new ImageJ();
 		/*
 		try
 		{
@@ -161,6 +133,12 @@ public class BigStitcher implements Command, PlugIn
 	public static void main( String[] args )
 	{
 		setupTesting();
-		new BigStitcher().run( );
+
+		final net.imagej.ImageJ ij = new net.imagej.ImageJ();
+		ij.launch();
+
+		// to run right away
+		ij.command().run(BigStitcher.class, true);
+
 	}
 }
