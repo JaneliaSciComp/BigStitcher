@@ -750,6 +750,7 @@ public class TransformationTools
 
 		GlobalOpt.computeTiles( 
 				new TranslationModel3D(),
+				true,// preAlign
 				new ImageCorrelationPointMatchCreator( results, 0.5 ),
 				new ConvergenceStrategy( 5.0 ),
 				fixedViews,

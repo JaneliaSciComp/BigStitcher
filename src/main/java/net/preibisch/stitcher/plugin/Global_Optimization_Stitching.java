@@ -66,7 +66,7 @@ public class Global_Optimization_Stitching implements PlugIn
 		final HashSet< Class< ? extends Entity > > defaultComparisonFactors = new HashSet<>();
 		defaultComparisonFactors.add( Tile.class );
 
-		GlobalOptimizationParameters params = GlobalOptimizationParameters.askUserForParameters(true);
+		GlobalOptimizationParameters params = GlobalOptimizationParameters.askUserForParameters(true, true /*prealign*/);
 
 		if (params.showExpertGrouping)
 			grouping.askUserForGrouping( 

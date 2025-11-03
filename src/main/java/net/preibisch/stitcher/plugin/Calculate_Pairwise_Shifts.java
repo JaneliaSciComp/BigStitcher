@@ -270,7 +270,7 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 		return true;
 	}
 
-
+	// TODO: remove interest points from BigStitcher entirely (except for ICP refinement)
 	public static boolean processInterestPoint(final SpimData2 data,
 			final SpimDataFilteringAndGrouping< SpimData2 > filteringAndGrouping,
 			boolean existingInterestPoints)
@@ -313,7 +313,7 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 				new Font( Font.SANS_SERIF, Font.BOLD, 12 ) );
 		gd.addMessage( "" );
 
-		brp.pwr.presetTransformationModel( new TransformationModelGUI( 0 ) );
+		//brp.pwr.presetTransformationModel( new TransformationModelGUI( 0 ) );
 		brp.pwr.addQuery( gd );
 
 		gd.showDialog();
@@ -419,7 +419,7 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 					data.getSequenceDescription().getViewDescriptions(),
 					ipMap,
 					brp.labelMap,
-					new GlobalOptimizationParameters(Double.MAX_VALUE, Double.MAX_VALUE, GlobalOptType.ONE_ROUND_SIMPLE, false ),
+					new GlobalOptimizationParameters(Double.MAX_VALUE, Double.MAX_VALUE, GlobalOptType.ONE_ROUND_SIMPLE, true, false ),
 					false, //matchacrosslabels
 					true ) )
 				continue;
