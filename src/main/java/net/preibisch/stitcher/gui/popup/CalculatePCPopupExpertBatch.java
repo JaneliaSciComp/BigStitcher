@@ -31,10 +31,10 @@ import net.preibisch.stitcher.gui.popup.CalculatePCPopup.Method;
 public class CalculatePCPopupExpertBatch extends JMenu implements ExplorerWindowSetable
 {
 
+	private static final long serialVersionUID = 804355154792175254L;
 	final CalculatePCPopup phaseCorrSimple;
 	final CalculatePCPopup phaseCorr;
 	final CalculatePCPopup lucasKanade;
-	final PairwiseInterestPointRegistrationPopup interestPoint;
 	boolean wizardMode;
 
 	public CalculatePCPopupExpertBatch( String description, boolean wizardMode )
@@ -50,13 +50,11 @@ public class CalculatePCPopupExpertBatch extends JMenu implements ExplorerWindow
 			
 		phaseCorr = new CalculatePCPopup( wizardMode ? "Phase Correlation" : "Phase Correlation (expert)", false, Method.PHASECORRELATION, wizardMode );
 		lucasKanade = new CalculatePCPopup( "Lucas-Kanade", false, Method.LUCASKANADE, wizardMode );
-		interestPoint = new PairwiseInterestPointRegistrationPopup( "Interest point based", wizardMode );
 
 		if(!wizardMode)
 			this.add(phaseCorrSimple);
 		this.add( phaseCorr );
 		this.add( lucasKanade );
-		this.add( interestPoint );
 	}
 
 	@Override
@@ -66,7 +64,6 @@ public class CalculatePCPopupExpertBatch extends JMenu implements ExplorerWindow
 			this.phaseCorrSimple.setExplorerWindow( panel );
 		this.phaseCorr.setExplorerWindow( panel );
 		this.lucasKanade.setExplorerWindow( panel );
-		this.interestPoint.setExplorerWindow( panel );
 		return this;
 	}
 

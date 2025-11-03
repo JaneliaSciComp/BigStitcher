@@ -81,9 +81,7 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 
 	private final static String[] methodChoices = {
 			"Phase Correlation",
-			"Lucas-Kanade",
-			"Interest-Point Registration (with existing Interest Points)",
-			"Interest-Point Registration (with new Interest Points)"};
+			"Lucas-Kanade" };
 
 	private static boolean expertGrouping;
 	private static boolean expertAlgorithmParameters;
@@ -139,28 +137,20 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 			grouping.getAxesOfComparison().addAll( defaultComparisonFactors );
 		}
 
-		if (defaultMethodIdx >= 2)
+		grouping.askUserForGroupingAggregator();
+		final long[] ds = StitchingUIHelper.askForDownsampling( data, is2d );
+
+		if (defaultMethodIdx == 0) // Phase Correlation
 		{
-			if (!processInterestPoint( data, grouping, defaultMethodIdx == 2 ))
+			PairwiseStitchingParameters params = expertAlgorithmParameters ? PairwiseStitchingParameters.askUserForParameters() : new PairwiseStitchingParameters();
+			if (!processPhaseCorrelation( data, grouping, params, ds ))
 				return;
 		}
-		else
+		else if (defaultMethodIdx == 1) // Lucas-Kanade
 		{
-			grouping.askUserForGroupingAggregator();
-			final long[] ds = StitchingUIHelper.askForDownsampling( data, is2d );
-
-			if (defaultMethodIdx == 0) // Phase Correlation
-			{
-				PairwiseStitchingParameters params = expertAlgorithmParameters ? PairwiseStitchingParameters.askUserForParameters() : new PairwiseStitchingParameters();
-				if (!processPhaseCorrelation( data, grouping, params, ds ))
-					return;
-			}
-			else if (defaultMethodIdx == 1) // Lucas-Kanade
-			{
-				LucasKanadeParameters params = expertAlgorithmParameters ? LucasKanadeParameters.askUserForParameters() : new LucasKanadeParameters( WarpFunctionType.TRANSLATION );
-				if (!processLucasKanade( data, grouping, params, ds ))
-					return;
-			}
+			LucasKanadeParameters params = expertAlgorithmParameters ? LucasKanadeParameters.askUserForParameters() : new LucasKanadeParameters( WarpFunctionType.TRANSLATION );
+			if (!processLucasKanade( data, grouping, params, ds ))
+				return;
 		}
 
 		// update XML
@@ -269,199 +259,4 @@ public class Calculate_Pairwise_Shifts implements PlugIn
 
 		return true;
 	}
-
-	// TODO: remove interest points from BigStitcher entirely (except for ICP refinement)
-	public static boolean processInterestPoint(final SpimData2 data,
-			final SpimDataFilteringAndGrouping< SpimData2 > filteringAndGrouping,
-			boolean existingInterestPoints)
-	{
-
-		// detect new interest points if requested
-		if (!existingInterestPoints)
-		{
-			// by default the registration suggests what is selected in the dialog
-			Interest_Point_Detection.defaultGroupTiles = filteringAndGrouping.getGroupingFactors().contains( Tile.class );
-			Interest_Point_Detection.defaultGroupIllums = filteringAndGrouping.getGroupingFactors().contains( Illumination.class );
-			new Interest_Point_Detection().detectInterestPoints( data, filteringAndGrouping.getFilteredViews() );
-		}
-
-		// by default the registration suggests what is selected in the dialog
-		// (and was passed to filteringAndGrouping)
-		Interest_Point_Registration.defaultGroupTiles = filteringAndGrouping.getGroupingFactors()
-				.contains( Tile.class );
-		Interest_Point_Registration.defaultGroupIllums = filteringAndGrouping.getGroupingFactors()
-				.contains( Illumination.class );
-		Interest_Point_Registration.defaultGroupChannels = filteringAndGrouping.getGroupingFactors()
-				.contains( Channel.class );
-
-		// which timepoints are part of the data (we dont necessarily need them,
-		// but basicRegistrationParameters GUI wants them)
-		List< ? extends ViewId > viewIds = filteringAndGrouping.getFilteredViews();
-		final List< TimePoint > timepointToProcess = SpimData2.getAllTimePointsSorted( data, viewIds );
-		final int nAllTimepoints = data.getSequenceDescription().getTimePoints().size();
-
-		// query basic registration parameters
-		final BasicRegistrationParameters brp = new Interest_Point_Registration().basicRegistrationParameters(
-				timepointToProcess, nAllTimepoints, data, (List< ViewId >) viewIds );
-		if ( brp == null )
-			return false;
-
-		// query algorithm parameters
-		GenericDialog gd = new GenericDialog( "Registration Parameters" );
-
-		gd.addMessage( "Algorithm parameters [" + brp.pwr.getDescription() + "]",
-				new Font( Font.SANS_SERIF, Font.BOLD, 12 ) );
-		gd.addMessage( "" );
-
-		//brp.pwr.presetTransformationModel( new TransformationModelGUI( 0 ) );
-		brp.pwr.addQuery( gd );
-
-		gd.showDialog();
-
-		if ( gd.wasCanceled() )
-			return false;
-		if ( !brp.pwr.parseDialog( gd ) )
-			return false;
-
-		// get all possible group pairs
-		List< ? extends Pair< ? extends Group< ? extends ViewId >, ? extends Group< ? extends ViewId > > > pairs = filteringAndGrouping
-				.getComparisons();
-
-		// remove old results
-		// this is just a cast of pairs to Group<ViewId>
-		final List< ValuePair< Group< ViewId >, Group< ViewId > > > castPairs = pairs.stream().map( p -> {
-			final Group< ViewId > vidGroupA = new Group<>(
-					p.getA().getViews().stream().map( v -> (ViewId) v ).collect( Collectors.toSet() ) );
-			final Group< ViewId > vidGroupB = new Group<>(
-					p.getB().getViews().stream().map( v -> (ViewId) v ).collect( Collectors.toSet() ) );
-			return new ValuePair<>( vidGroupA, vidGroupB );
-		} ).collect( Collectors.toList() );
-
-		for ( ValuePair< Group< ViewId >, Group< ViewId > > pair : castPairs )
-		{
-			// try to remove a -> b and b -> a, just to make sure
-			data.getStitchingResults().getPairwiseResults().remove( pair );
-			data.getStitchingResults().getPairwiseResults().remove( new ValuePair<>( pair.getB(), pair.getA() ) );
-		}
-
-		// remove non-overlapping comparisons
-		final List< Pair< Group< ViewId >, Group< ViewId > > > removedPairs = TransformationTools
-				.filterNonOverlappingPairs( (List< Pair< Group< ViewId >, Group< ViewId > > >) pairs,
-						data.getViewRegistrations(), data.getSequenceDescription() );
-		removedPairs
-				.forEach( p -> System.out.println( "Skipping non-overlapping pair: " + p.getA() + " -> " + p.getB() ) );
-
-		for ( final Pair< Group< ViewId >, Group< ViewId > > pair : (List< Pair< Group< ViewId >, Group< ViewId > > >) pairs )
-		{
-			// all views in group pair
-			final HashSet< ViewId > vids = new HashSet< ViewId >();
-			vids.addAll( pair.getA().getViews() );
-			vids.addAll( pair.getB().getViews() );
-
-			// simple PairwiseSetup with just two groups (fully connected to
-			// each other)
-			Set<Group<ViewId>> groups = new HashSet<>();
-			groups.add( pair.getA() );
-			groups.add( pair.getB() );
-			final PairwiseSetup< ViewId > setup = new PairwiseSetup< ViewId >( new ArrayList<>( vids ), groups )
-			{
-
-				@Override
-				protected List< Pair< ViewId, ViewId > > definePairsAbstract()
-				{
-					// all possible links between groups
-					final List< Pair< ViewId, ViewId > > res = new ArrayList<>();
-					for ( final ViewId vidA : pair.getA() )
-						for ( final ViewId vidB : pair.getB() )
-							res.add( new ValuePair< ViewId, ViewId >( vidA, vidB ) );
-					return res;
-				}
-
-				@Override
-				public List< ViewId > getDefaultFixedViews()
-				{
-					// first group will remain fixed -> we get the transform to
-					// align second group to this target
-					return new ArrayList<>( pair.getA().getViews() );
-				}
-			};
-
-			// prepare setup
-			setup.definePairs();
-			setup.detectSubsets();
-
-			// get copies of view registrations (as they will be modified) and
-			// interest points
-			final Map< ViewId, ViewRegistration > registrationMap = new HashMap<>();
-			final Map< ViewId, ViewInterestPointLists > ipMap = new HashMap<>();
-			for ( ViewId vid : vids )
-			{
-				final ViewRegistration vrOld = data.getViewRegistrations().getViewRegistration( vid );
-				final ViewInterestPointLists iplOld = data.getViewInterestPoints().getViewInterestPointLists( vid );
-				registrationMap.put( vid, new ViewRegistration( vid.getTimePointId(), vid.getViewSetupId(),
-						new ArrayList<>( vrOld.getTransformList() ) ) );
-				ipMap.put( vid, iplOld );
-			}
-
-			final Interest_Point_Registration reg = new Interest_Point_Registration();
-			// run the registration for this pair, skip saving results if it did not work
-			if ( !reg.processRegistration(
-					setup,
-					data.getSequenceDescription().getViewSetups(),
-					brp.pwr,
-					InterestpointGroupingType.ADD_ALL,
-					InterestPointOverlapType.ALL,
-					0.0,
-					pair.getA().getViews(),
-					null,
-					null,
-					registrationMap,
-					data.getSequenceDescription().getViewDescriptions(),
-					ipMap,
-					brp.labelMap,
-					new GlobalOptimizationParameters(Double.MAX_VALUE, Double.MAX_VALUE, GlobalOptType.ONE_ROUND_SIMPLE, true, false ),
-					false, //matchacrosslabels
-					true ) )
-				continue;
-
-			// get newest Transformation of groupB (the accumulative transform
-			// determined by registration)
-			final ViewTransform vtB = registrationMap.get( pair.getB().iterator().next() ).getTransformList().get( 0 );
-
-			List< Pair< Pair< ViewId, ViewId >, ? extends PairwiseResult< ? > > > stats = reg.getStatistics();
-
-			// TODO: is this correct?
-			// since the grouped IP are split up again in the statistics, can we just sum inliers & candidates
-			// to get the total cands/inliers. or are we counting some twice?
-			double candidates = 0;
-			double inliers = 0;
-			for (final Pair< Pair< ViewId, ViewId >, ? extends PairwiseResult< ? > > stat : stats)
-			{
-				candidates += stat.getB().getCandidates().size();
-				inliers += stat.getB().getInliers().size();
-			}
-
-
-			final AffineTransform3D result = new AffineTransform3D();
-			result.set( vtB.asAffine3D().getRowPackedCopy() );
-			IOFunctions.println( "resulting transformation: " + Util.printCoordinates( result.getRowPackedCopy() ) );
-
-			// get Overlap Bounding Box, which we need for stitching results
-			final List< List< ViewId > > groupListsForOverlap = new ArrayList<>();
-			groupListsForOverlap.add( new ArrayList<>( pair.getA().getViews() ) );
-			groupListsForOverlap.add( new ArrayList<>( pair.getB().getViews() ) );
-			BoundingBoxMaximalGroupOverlap< ViewId > bbDet = new BoundingBoxMaximalGroupOverlap< ViewId >(
-					groupListsForOverlap, data.getSequenceDescription(), data.getViewRegistrations() );
-			BoundingBox bbOverlap = bbDet.estimate( "Max Overlap" );
-
-			final double oldTransformHash = PairwiseStitchingResult.calculateHash(
-					data.getViewRegistrations().getViewRegistration( pair.getA().getViews().iterator().next() ),
-					data.getViewRegistrations().getViewRegistration( pair.getA().getViews().iterator().next() ) );
-			data.getStitchingResults().getPairwiseResults().put( pair,
-					new PairwiseStitchingResult<>( pair, bbOverlap, result, inliers/candidates, oldTransformHash ) );
-		}
-
-		return true;
-	}
-
 }

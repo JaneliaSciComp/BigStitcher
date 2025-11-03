@@ -76,8 +76,7 @@ public class ExecuteGlobalOpt implements Runnable
 			}
 
 			final boolean isSavedFaG = savedFiltering != null;
-			final boolean preAlign = false; // no pre-align for ICP
-			final GlobalOptimizationParameters params = expertMode ? GlobalOptimizationParameters.askUserForParameters(!isSavedFaG, preAlign) : GlobalOptimizationParameters.askUserForSimpleParameters();
+			final GlobalOptimizationParameters params = GlobalOptimizationParameters.askUserForSimpleParameters();
 			if ( params == null )
 				return;
 
