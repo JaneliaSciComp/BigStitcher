@@ -61,7 +61,19 @@ body
 For general help regarding usage of BigStitcher please go to the following
 webpage: <a href="http://imagej.net/BigStitcher">http://imagej.net/BigStitcher</a>.
 </p>
-<br/>
+
+<div style="background-color:#ffffcc; border:2px solid #ffaa00; padding:15px; margin:15px 0px;">
+<h3 style="margin-top:0px; color:#cc6600;">💡 Important Usage Information</h3>
+<p style="margin-bottom:5px;">
+<b>All functionality is available by right-clicking on the views you want to process.</b>
+Simply select one or more views in the <b><i>Stitching Explorer</i></b> table, then right-click
+to access all processing options.
+</p>
+<p style="margin-bottom:0px;">
+<b>For macro recording:</b> Please use the <b>Fiji BigStitcher plugins</b> menu instead of the
+interactive explorer interface, as the explorer does not support macro recording.
+</p>
+</div>
 
 <h2>Key Bindings for BigStitcher</h2>
 <p>
@@ -79,8 +91,14 @@ another help window with more details.
 
 <table border="1">
 <tr>
+  <td class="a"><b>F1</b></td>
+  <td>Show this help window.</td>
+</tr><tr>
   <td class="a"><b>C</b></td>
   <td>Switch between <i>fused mode</i> and <i>random coloring</i> of image stacks.</td>
+</tr><tr>
+  <td class="a"><b>V</b></td>
+  <td>Toggle ViewSetup ID overlay in BigDataViewer (shows setup IDs on screen).</td>
 </tr><tr>
   <td class="a"><b>L</b></td>
   <td>Display links between images used for registation
@@ -88,6 +106,45 @@ another help window with more details.
 </tr><tr>
   <td class="a"><b>R</b></td>
   <td>Re-orient BigDataViewer onto the currently selected tiles.</td>
+</tr><tr>
+  <td class="a"><b>Cmd+A</b> (Mac)<br/><b>Ctrl+A</b> (Win/Linux)</td>
+  <td>Select all views in the table.</td>
+</tr><tr>
+  <td class="a"><b>+</b></td>
+  <td>Open selection dialog to filter views by criteria (ranges, comma-separated values, AND/OR logic).</td>
+</tr><tr>
+  <td class="a"><b>&lt;</b> or <b>,</b></td>
+  <td>Navigate backward in selection history (undo selection).</td>
+</tr><tr>
+  <td class="a"><b>&gt;</b> or <b>.</b></td>
+  <td>Navigate forward in selection history (redo selection).</td>
+</tr><tr>
+  <td class="a"><b>E</b></td>
+  <td>Enable <i>fly-through recording mode</i> (Easter Egg). Once enabled, the following keys become active:</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>a</b></td>
+  <td>Add current BDV view as keypoint for fly-through.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>x</b></td>
+  <td>Clear all keypoints.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>d</b></td>
+  <td>Delete last keypoint.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>j</b></td>
+  <td>Jump BDV to the last keypoint.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>r</b></td>
+  <td>Start recording fly-through animation.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>s</b></td>
+  <td>Save all keypoints to file.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>l</b></td>
+  <td>Load keypoints from file.</td>
+</tr><tr>
+  <td class="a" style="padding-left:30px;"><b>R</b></td>
+  <td>Make a high-resolution screenshot with user-defined resolution.</td>
 </tr>
 </table>
 <br/>
