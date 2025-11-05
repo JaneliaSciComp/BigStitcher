@@ -120,7 +120,7 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>7.0.8-SNAPSHOT</multiview-reconstruction.version>
+		<multiview-reconstruction.version>8.1.0</multiview-reconstruction.version>
 
 		<bigdataviewer-n5.version>1.0.2</bigdataviewer-n5.version>
 		<mpicbg.mpicbg.version>1.6.5</mpicbg.mpicbg.version>
