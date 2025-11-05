@@ -11,7 +11,7 @@
 
 	<groupId>net.preibisch</groupId>
 	<artifactId>BigStitcher</artifactId>
-	<version>2.5.4-SNAPSHOT</version>
+	<version>2.6.0</version>
 
 	<name>Big Stitcher</name>
 	<description>Multiview stitching of large datasets.</description>
@@ -82,7 +82,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/JaneliaSciComp/BigStitcher</connection>
 		<developerConnection>scm:git:git@github.com:JaneliaSciComp/BigStitcher</developerConnection>
-		<tag>HEAD</tag>
+		<tag>BigStitcher-2.6.0</tag>
 		<url>https://github.com/JaneliaSciComp/BigStitcher</url>
 	</scm>
 	<issueManagement>
