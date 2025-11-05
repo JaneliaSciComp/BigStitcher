@@ -191,6 +191,7 @@ public class GlobalOptStitcher
 			{
 				HashMap< ViewId, mpicbg.models.Tile< TranslationModel3D > > globalOptResults = GlobalOptTwoRound.computeTiles(
 						new TranslationModel3D(),
+						true,// preAlign
 						new ImageCorrelationPointMatchCreator( results ),
 						new SimpleIterativeConvergenceStrategy( Double.MAX_VALUE,
 								params.relativeThreshold, params.absoluteThreshold ),
@@ -222,6 +223,7 @@ public class GlobalOptStitcher
 			{
 				HashMap< ViewId, mpicbg.models.Tile< TranslationModel3D > > globalOptResults = GlobalOptIterative.computeTiles(
 						new TranslationModel3D(),
+						true,// preAlign
 						new ImageCorrelationPointMatchCreator( results ),
 						new SimpleIterativeConvergenceStrategy( Double.MAX_VALUE,
 								params.relativeThreshold, params.absoluteThreshold ),
@@ -246,6 +248,7 @@ public class GlobalOptStitcher
 			{
 				final HashMap< ViewId, mpicbg.models.Tile< TranslationModel3D > > globalOptResults = GlobalOpt.computeTiles(
 						new TranslationModel3D(),
+						true,// preAlign
 						new ImageCorrelationPointMatchCreator( results ),
 						new SimpleIterativeConvergenceStrategy( Double.MAX_VALUE,
 								params.relativeThreshold, params.absoluteThreshold ),

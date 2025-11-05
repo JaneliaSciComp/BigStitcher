@@ -436,7 +436,7 @@ public class ICPRefinement
 		}
 
 		// load & transform all interest points
-		final Map< ViewId, HashMap< String, List< InterestPoint > > > interestpoints =
+		final Map< ViewId, HashMap< String, Collection< InterestPoint > > > interestpoints =
 				TransformationTools.getAllTransformedInterestPoints(
 					params.viewIds,
 					data.getViewRegistrations().getViewRegistrations(),
@@ -519,7 +519,7 @@ public class ICPRefinement
 	public static final HashMap< ViewId, mpicbg.models.Tile > pairSubset(
 			final SpimData2 spimData,
 			final Subset< ViewId > subset,
-			final Map< ViewId, HashMap< String, List< InterestPoint > > > interestpoints,
+			final Map< ViewId, HashMap< String, Collection< InterestPoint > > > interestpoints,
 			final Map< ViewId, HashMap< String, Double > > labelMap,
 			final IterativeClosestPointParameters icpp,
 			final List< ViewId > fixedViews,
@@ -594,6 +594,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOpt.computeTiles(
 							(Model)(Object)icpp.getModel().copy(),
+							globalOptParameters.preAlign,
 							pmc,
 							new ConvergenceStrategy( icpp.getMaxDistance() ),
 							fixedViews,
@@ -603,6 +604,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOptIterative.computeTiles(
 							(Model)(Object)icpp.getModel().copy(),
+							globalOptParameters.preAlign,
 							pmc,
 							new SimpleIterativeConvergenceStrategy( icpp.getMaxDistance(), globalOptParameters.relativeThreshold, globalOptParameters.absoluteThreshold ),
 							new MaxErrorLinkRemoval(),
@@ -614,6 +616,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOptTwoRound.computeTiles(
 					(Model & Affine3D)(Object)icpp.getModel().copy(),
+					globalOptParameters.preAlign,
 					pmc,
 					new SimpleIterativeConvergenceStrategy( icpp.getMaxDistance(), globalOptParameters.relativeThreshold, globalOptParameters.absoluteThreshold ), // if it's simple, both will be Double.MAX
 					new MaxErrorLinkRemoval(),
@@ -635,7 +638,7 @@ public class ICPRefinement
 	public static HashMap< ViewId, mpicbg.models.Tile > groupedSubset(
 			final SpimData2 spimData,
 			final Subset< ViewId > subset,
-			final Map< ViewId, HashMap< String, List< InterestPoint > > > interestpoints,
+			final Map< ViewId, HashMap< String, Collection< InterestPoint > > > interestpoints,
 			final Map< ViewId, HashMap< String, Double > > labelMap,
 			final IterativeClosestPointParameters icpp,
 			final List< ViewId > fixedViews,
@@ -646,7 +649,7 @@ public class ICPRefinement
 			final boolean matchAcrossLabels )
 	{
 		final List< Pair< Group< ViewId >, Group< ViewId > > > groupedPairs = subset.getGroupedPairs();
-		final Map< Group< ViewId >, HashMap< String, List< GroupedInterestPoint< ViewId > > > > groupedInterestpoints = new HashMap<>();
+		final Map< Group< ViewId >, HashMap< String, Collection< GroupedInterestPoint< ViewId > > > > groupedInterestpoints = new HashMap<>();
 		final InterestPointGrouping< ViewId > ipGrouping = new InterestPointGroupingMinDistance<>( interestpoints );
 
 		if ( groupedPairs.size() <= 0 )
@@ -714,6 +717,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOpt.computeTiles(
 							(Model)(Object)icpp.getModel().copy(),
+							globalOptParameters.preAlign,
 							pmc,
 							new ConvergenceStrategy( icpp.getMaxDistance() ),
 							fixedViews,
@@ -723,6 +727,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOptIterative.computeTiles(
 							(Model)(Object)icpp.getModel().copy(),
+							globalOptParameters.preAlign,
 							pmc,
 							new SimpleIterativeConvergenceStrategy( icpp.getMaxDistance(), globalOptParameters.relativeThreshold, globalOptParameters.absoluteThreshold ),
 							new MaxErrorLinkRemoval(),
@@ -734,6 +739,7 @@ public class ICPRefinement
 		{
 			models = (HashMap< ViewId, mpicbg.models.Tile >)(Object)GlobalOptTwoRound.computeTiles(
 					(Model & Affine3D)(Object)icpp.getModel().copy(),
+					globalOptParameters.preAlign,
 					pmc,
 					new SimpleIterativeConvergenceStrategy( icpp.getMaxDistance(), globalOptParameters.relativeThreshold, globalOptParameters.absoluteThreshold ), // if it's simple, both will be Double.MAX
 					new MaxErrorLinkRemoval(),

@@ -265,6 +265,15 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 			return true;
 	}
 
+	@Override
+	protected void clearGroupingCheckboxes()
+	{
+		if ( checkboxGroupChannels != null )
+			checkboxGroupChannels.setSelected( false );
+		if ( checkboxGroupIllums != null )
+			checkboxGroupIllums.setSelected( false );
+	}
+
 
 
 	void quitLinkExplorer()

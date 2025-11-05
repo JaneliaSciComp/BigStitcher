@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.mvrecon.fiji.plugin.interestpointregistration.global.GlobalOptimizationParameters;
+import net.preibisch.mvrecon.fiji.plugin.interestpointregistration.global.GlobalOptimizationParameters.PreAlign;
 import net.preibisch.mvrecon.fiji.plugin.util.MouseOverPopUpStateChanger;
 import net.preibisch.mvrecon.fiji.plugin.util.MouseOverPopUpStateChanger.StateChanger;
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
@@ -243,7 +244,7 @@ public class RefineWithICPPopup extends JMenu implements ExplorerWindowSetable
 					if ( !ICPRefinement.getGUIParametersSimple( icpType, data, params, downsamplingChoice, thresholdChoice, distanceChoice ) )
 						return;
 
-					globalOptParams = GlobalOptimizationParameters.getGlobalOptimizationParametersForSelection( GlobalOptimizationParameters.defaultSimple );
+					globalOptParams = GlobalOptimizationParameters.getGlobalOptimizationParametersForSelection( GlobalOptimizationParameters.defaultSimple, false );
 				}
 
 				if ( globalOptParams == null )

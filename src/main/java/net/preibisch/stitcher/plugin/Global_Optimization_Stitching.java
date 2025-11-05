@@ -35,6 +35,7 @@ import mpicbg.spim.data.sequence.TimePoint;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.util.Pair;
 import net.preibisch.mvrecon.fiji.plugin.interestpointregistration.global.GlobalOptimizationParameters;
+import net.preibisch.mvrecon.fiji.plugin.interestpointregistration.global.GlobalOptimizationParameters.PreAlign;
 import net.preibisch.mvrecon.fiji.plugin.queryXML.LoadParseQueryXML;
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.XmlIoSpimData2;
@@ -66,7 +67,7 @@ public class Global_Optimization_Stitching implements PlugIn
 		final HashSet< Class< ? extends Entity > > defaultComparisonFactors = new HashSet<>();
 		defaultComparisonFactors.add( Tile.class );
 
-		GlobalOptimizationParameters params = GlobalOptimizationParameters.askUserForParameters(true);
+		GlobalOptimizationParameters params = GlobalOptimizationParameters.askUserForParameters( true, PreAlign.ASK );
 
 		if (params.showExpertGrouping)
 			grouping.askUserForGrouping( 
