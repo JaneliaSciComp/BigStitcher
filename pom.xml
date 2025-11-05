@@ -15,7 +15,7 @@
 
 	<name>Big Stitcher</name>
 	<description>Multiview stitching of large datasets.</description>
-	<url>https://github.com/PreibischLab/BigStitcher</url>
+	<url>https://github.com/JaneliaSciComp/BigStitcher</url>
 	<inceptionYear>2016</inceptionYear>
 	<organization>
 		<name>Preibisch Lab</name>
@@ -80,18 +80,18 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:https://github.com/PreibischLab/BigStitcher</connection>
-		<developerConnection>scm:git:git@github.com:PreibischLab/BigStitcher</developerConnection>
+		<connection>scm:git:https://github.com/JaneliaSciComp/BigStitcher</connection>
+		<developerConnection>scm:git:git@github.com:JaneliaSciComp/BigStitcher</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/PreibischLab/BigStitcher</url>
+		<url>https://github.com/JaneliaSciComp/BigStitcher</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/PreibischLab/BigStitcher/issues</url>
+		<url>https://github.com/JaneliaSciComp/BigStitcher/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://github.com/PreibischLab/BigStitcher/actions</url>
+		<url>https://github.com/JaneliaSciComp/BigStitcher/actions</url>
 	</ciManagement>
 
 	<properties>
