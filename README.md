@@ -1,4 +1,4 @@
-[![](https://github.com/JaneliaSciComp/BigStitcher/actions/workflows/build-main.yml/badge.svg)](https://github.com/JaneliaSciComp/BigStitcher/actions/workflows/build-main.yml)
+[![](https://github.com/JaneliaSciComp/BigStitcher/actions/workflows/build.yml/badge.svg)](https://github.com/JaneliaSciComp/BigStitcher/actions/workflows/build.yml)
 
 Documentation is available here [https://imagej.net/plugins/bigstitcher/].
 
