@@ -120,10 +120,10 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>8.1.1</multiview-reconstruction.version>
+		<multiview-reconstruction.version>8.1.2</multiview-reconstruction.version>
 
 		<bigdataviewer-n5.version>1.0.2</bigdataviewer-n5.version>
-		<mpicbg.mpicbg.version>1.6.5</mpicbg.mpicbg.version>
+		<mpicbg.mpicbg.version>1.6.6</mpicbg.mpicbg.version>
 		<generic-archiver.version>1.1.0</generic-archiver.version>
 
 	</properties>
