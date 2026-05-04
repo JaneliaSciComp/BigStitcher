@@ -55,7 +55,6 @@ import org.scijava.plugin.PluginIndex;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Menus;
-import ij.gui.GenericDialog;
 import ij.plugin.PlugIn;
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.legacy.io.TextFileAccess;
@@ -96,6 +95,8 @@ public class BigStitcher implements Command, PlugIn
 			}
 		});
 
+		result.addCheckbox( "Use_lazy_BDV_mode (adds & removes views when selected)" );
+
 		if ( !result.queryXML( "BigStitcher", "", false, false, false, false, false ) && !newDataset )
 			return;
 
@@ -103,22 +104,7 @@ public class BigStitcher implements Command, PlugIn
 		final URI xml = result.getXMLURI();
 		final XmlIoSpimData2 io = result.getIO();
 
-		BDVPopup.useLazyMode = false;
-		if ( data != null )
-		{
-			final int totalViews = data.getSequenceDescription().getViewSetups().size()
-					* data.getSequenceDescription().getTimePoints().size();
-			if ( totalViews > 100 )
-			{
-				final GenericDialog gd = new GenericDialog( "Large dataset options" );
-				gd.addMessage( "This dataset has " + totalViews + " views." );
-				gd.addCheckbox( "Use_lazy_BDV_mode (adds & removes views when selected)", totalViews >= 1000 );
-				gd.showDialog();
-				if ( gd.wasCanceled() )
-					return;
-				BDVPopup.useLazyMode = gd.getNextBoolean();
-			}
-		}
+		BDVPopup.useLazyMode = result.isCheckBoxSelected();
 
 		final StitchingExplorer< SpimData2 > explorer =
 				new StitchingExplorer< >( data, xml, io );

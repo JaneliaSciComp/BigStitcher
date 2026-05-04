@@ -228,14 +228,9 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 	public void quit()
 	{
 		// close BDV if open
-		try
-		{
-			new Thread(() -> {
-				if ( panel.bdvPopup().bdvRunning() )
-					panel.bdvPopup().closeBDV();
-			}).start();
-		}
-		catch( Exception e ) {};
+		final BasicBDVPopup bdvPopup = panel.runningBdvPopup();
+		if ( bdvPopup != null && bdvPopup.bdvRunning() )
+			bdvPopup.closeBDV();
 
 		for ( final SelectedViewDescriptionListener< AS > l : panel.getListeners() )
 			l.quit();
