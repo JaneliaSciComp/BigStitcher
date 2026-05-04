@@ -111,7 +111,8 @@ import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.ResavePopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.Separator;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.SimpleHyperlinkPopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.VisualizeNonRigid;
-import net.preibisch.mvrecon.fiji.spimdata.explorer.util.ColorStream;
+import util.BDVTools;
+import util.ColorStream;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.filemap2.FileMapImgLoaderLOCI2;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.flatfield.FlatfieldCorrectionWrappedImgLoader;
 import net.preibisch.mvrecon.fiji.spimdata.interestpoints.InterestPoints;
@@ -126,6 +127,7 @@ import net.preibisch.stitcher.gui.bdv.BDVVisibilityHandlerNeighborhood;
 import net.preibisch.stitcher.gui.overlay.DemoLinkOverlay;
 import net.preibisch.stitcher.gui.overlay.LinkOverlay;
 import net.preibisch.stitcher.gui.popup.BDVPopupStitching;
+import net.preibisch.stitcher.gui.popup.LazyBDVPopupStitching;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopup;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopup.Method;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopupExpertBatch;
@@ -193,22 +195,27 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		popups = initPopups();
 		initComponent();
 
-		if ( requestStartBDV && 
+		if ( requestStartBDV &&
 				(ViewerImgLoader.class.isInstance( data.getSequenceDescription().getImgLoader() )
 				|| (FlatfieldCorrectionWrappedImgLoader.class.isInstance(data.getSequenceDescription().getImgLoader()) &&
 						((FlatfieldCorrectionWrappedImgLoader) data.getSequenceDescription().getImgLoader()).isCached() &&
 						((FlatfieldCorrectionWrappedImgLoader) data.getSequenceDescription().getImgLoader()).isActive())
-				|| FractalImgLoader.class.isInstance( data.getSequenceDescription().getImgLoader() ) 
-				|| (( data instanceof SpimData2 ) && ((SpimData2)data).gridMoveRequested )  
+				|| FractalImgLoader.class.isInstance( data.getSequenceDescription().getImgLoader() )
+				|| (( data instanceof SpimData2 ) && ((SpimData2)data).gridMoveRequested )
 				|| FileMapImgLoaderLOCI2.class.isInstance( data.getSequenceDescription().getImgLoader() ) ) )
 		{
-			if (!bdvPopup().bdvRunning())
+			if ( !bdvPopup().bdvRunning() )
 			{
-				bdvPopup().bdv = BDVPopupStitching.createBDV( this, linkOverlay );
-				
-				// Update BDV to show all grouped tiles based on initial table selection
-				if ( !selectedRows.isEmpty() )
-					updateBDV( bdvPopup().bdv, colorMode, data, firstSelectedVD, selectedRows );
+				if ( BDVPopup.useLazyMode )
+				{
+					( ( LazyBDVPopupStitching ) bdvPopup() ).openLazyBDV( this );
+				}
+				else
+				{
+					bdvPopup().bdv = BDVPopupStitching.createBDV( this, linkOverlay );
+					if ( !selectedRows.isEmpty() )
+						updateBDV( bdvPopup().bdv, colorMode, data, firstSelectedVD, selectedRows );
+				}
 			}
 		}
 
@@ -820,7 +827,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		final ArrayList< ExplorerWindowSetable > popups = new ArrayList< ExplorerWindowSetable >();
 
 		popups.add( new LabelPopUp( " Displaying" ) );
-		popups.add( new BDVPopupStitching( linkOverlay ) );
+		popups.add( BDVPopup.useLazyMode ? new LazyBDVPopupStitching( linkOverlay ) : new BDVPopupStitching( linkOverlay ) );
 		popups.add( new DisplayRawImagesPopup() );
 		popups.add( new QualityPopup() );
 		popups.add( new MaxProjectPopup() );
@@ -948,7 +955,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 			if ( vd.getTimePointId() == firstTP.getId() )
 				active[getBDVSourceIndex( vd.getViewSetup(), data )] = true;
 
-		resetBDVManualTransformations( bdvPopup().bdv );
+		BDVTools.resetBDVManualTransformations( bdvPopup().bdv );
 
 		List< Pair< Group< ViewId >, Group< ViewId > > > activeLinks = new ArrayList< >();
 

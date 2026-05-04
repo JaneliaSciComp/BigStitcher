@@ -64,6 +64,7 @@ import net.preibisch.mvrecon.fiji.datasetmanager.grid.RegularTranformHelpers.Reg
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ExplorerWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.GroupedRowWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListener;
 import net.preibisch.mvrecon.process.interestpointregistration.pairwise.constellation.grouping.Group;
@@ -408,7 +409,7 @@ public class PreviewRegularGridPanel <AS extends SpimData2 > extends JPanel impl
 
 		{
 			
-			//FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdv );
+			//BDVTools.resetBDVManualTransformations( bdv );
 
 			RegularTranslationParameters params = new RegularTranslationParameters();
 			params.nDimensions = 3;
@@ -535,7 +536,7 @@ public class PreviewRegularGridPanel <AS extends SpimData2 > extends JPanel impl
 		{
 			bdv.getViewer().setCurrentViewerTransform( oldViewerTransform );
 		
-			FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( parent.bdvPopup().getBDV() );
+			BDVTools.resetBDVManualTransformations( parent.bdvPopup().getBDV() );
 			parent.bdvPopup().getBDV().getViewer().requestRepaint();
 		}
 

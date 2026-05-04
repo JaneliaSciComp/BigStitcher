@@ -39,6 +39,7 @@ import net.imglib2.type.numeric.ARGBType;
 import net.preibisch.mvrecon.fiji.spimdata.boundingbox.BoundingBox;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ExplorerWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.GroupedRowWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ISpimDataTableModel;
 import net.preibisch.mvrecon.process.boundingbox.BoundingBoxMaximalGroupOverlap;
@@ -149,7 +150,7 @@ public class BDVVisibilityHandlerNeighborhood implements BDVVisibilityHandler
 					// set setup to gray
 					cs.setColor( new ARGBType( ARGBType.rgba( 100, 100, 100, 255 ) ) );
 					bdv.getViewer().getVisibilityAndGrouping().setSourceActive(
-							FilteredAndGroupedExplorerPanel.getBDVSourceIndex(
+							BDVTools.getBDVSourceIndex(
 									panel.getSpimData().getSequenceDescription().getViewDescriptions().get( vid ).getViewSetup(),
 									panel.getSpimData() ), true );
 				}

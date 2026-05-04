@@ -35,6 +35,7 @@ import net.imglib2.type.numeric.ARGBType;
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ExplorerWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.ExplorerWindowSetable;
 import net.preibisch.stitcher.gui.overlay.DemoLinkOverlay;
 
@@ -114,7 +115,7 @@ public class DemoLinkOverlayPopup extends JMenuItem implements ExplorerWindowSet
 	public void colorSources( final BigDataViewer bdv )
 	{
 		if ( bdv != null )
-			FilteredAndGroupedExplorerPanel.sameColorSources( bdv.getSetupAssignments().getConverterSetups(), 64, 64, 96, 255 );
+			BDVTools.sameColorSources( bdv.getSetupAssignments().getConverterSetups(), 64, 64, 96, 255 );
 	}
 
 	@Override

@@ -42,9 +42,12 @@ import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.XmlIoSpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorer;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListener;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorer;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorerPanel;
+import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BasicBDVPopup;
+import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.LazyBDVPopup;
 import net.preibisch.stitcher.input.GenerateSpimData;
 import net.preibisch.stitcher.plugin.BigStitcher;
 
@@ -155,18 +158,19 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		frame.setTitle( mode == Mode.STITCHING ? "Stitching Explorer" : "Multiview Explorer" );
 		
 		// TODO: is there a smarter way than closing and reopening BDV?
-		boolean bdvWasOpen = panel.bdvPopup().bdvRunning();
+		final BasicBDVPopup currentBdvPopup = panel.getAnyBDVPopup();
+		boolean bdvWasOpen = currentBdvPopup != null && currentBdvPopup.bdvRunning();
 		BigDataViewer bdvExisting = null;
 		if (bdvWasOpen)
 		{
-			bdvExisting = panel.bdvPopup().getBDV();
+			bdvExisting = currentBdvPopup.getBDV();
 			
 			if (mode == Mode.MULTIVIEW)
 			{
 				bdvExisting.getViewer().removeTransformListener( ((StitchingExplorerPanel< AS >) panel).linkOverlay );
 				bdvExisting.getViewer().getDisplay().removeOverlayRenderer( ((StitchingExplorerPanel< AS >) panel).linkOverlay );
 				((StitchingExplorerPanel< AS >) panel).quitLinkExplorer();
-				FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvExisting );
+				BDVTools.resetBDVManualTransformations( bdvExisting );
 			}
 //			new Thread( () -> {panel.bdvPopup().closeBDV();} ).start();			
 		}
@@ -190,7 +194,22 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 
 		
 		if (bdvWasOpen)
-			panel.bdvPopup().setBDV( bdvExisting );
+		{
+			if ( panel.bdvPopup() != null )
+			{
+				panel.bdvPopup().setBDV( bdvExisting );
+			}
+			else
+			{
+				// Lazy mode: bdvPopup() only finds BDVPopup subclasses; LazyBDVPopup
+				// is not one. Close the old BDV and open a fresh lazy one so that
+				// LazyBDVPopup registers its selection listener (same as Data Explorer).
+				bdvExisting.getViewerFrame().dispose();
+				final BasicBDVPopup anyPopup = panel.getAnyBDVPopup();
+				if ( anyPopup instanceof LazyBDVPopup )
+					( ( LazyBDVPopup ) anyPopup ).openBDV( panel );
+			}
+		}
 //			for (ActionListener a : panel.bdvPopup().getActionListeners())
 //				a.actionPerformed(( new ActionEvent( this, ActionEvent.ACTION_PERFORMED, null )));
 		

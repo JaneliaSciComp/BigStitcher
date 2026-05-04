@@ -53,10 +53,11 @@ import net.imglib2.type.numeric.ARGBType;
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ExplorerWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.GroupedRowWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.bdv.ScrollableBrightnessDialog;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVPopup;
-import net.preibisch.mvrecon.fiji.spimdata.explorer.util.ColorStream;
+import util.ColorStream;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.AbstractImgLoader;
 import net.preibisch.mvrecon.process.interestpointregistration.pairwise.constellation.grouping.Group;
 import net.preibisch.stitcher.gui.MaximumProjectorARGB;
@@ -69,7 +70,7 @@ public class BDVPopupStitching extends BDVPopup
 	 */
 	private static final long serialVersionUID = -8852442192041303045L;
 
-	private LinkOverlay lo;
+	protected LinkOverlay lo;
 
 	public BDVPopupStitching(LinkOverlay lo)
 	{
@@ -132,6 +133,15 @@ public class BDVPopupStitching extends BDVPopup
 
 	public static void minMaxGroupByFactors(BigDataViewer bdv, AbstractSpimData< ? > data, Set<Class<? extends Entity>> groupingFactors)
 	{
+		// Skip for large datasets: uses deprecated per-source SetupAssignments API
+		// (removeSetupFromGroup/moveSetupToGroup) that creates O(n) MinMaxGroups and fires O(n) events.
+		final int numSources = bdv.getSetupAssignments().getConverterSetups().size();
+		if ( numSources > 1000 )
+		{
+			net.preibisch.legacy.io.IOFunctions.println( "PERF: [minMaxGroupByFactors] skipping for large dataset (" + numSources + " sources)" );
+			return;
+		}
+
 		List<BasicViewDescription< ? > > vds = new ArrayList<>();
 		Map<BasicViewDescription< ? >, ConverterSetup> vdToCs = new HashMap<>();
 
@@ -175,7 +185,17 @@ public class BDVPopupStitching extends BDVPopup
 	public static void groupSourcesByFactors(BigDataViewer bdv, AbstractSpimData< ? > data,
 			Set< Class< ? extends Entity > > groupingFactors)
 	{
-		//  clear source groups		
+		// Skip for large datasets: this uses a deprecated per-source BDV API
+		// (getVisibilityAndGrouping().addSourceToGroup) that fires O(n) individual events,
+		// making it O(n²) for datasets with tens of thousands of sources.
+		final int numSources = bdv.getViewer().getState().getSources().size();
+		if ( numSources > 1000 )
+		{
+			IOFunctions.println( "PERF: [groupSourcesByFactors] skipping for large dataset (" + numSources + " sources)" );
+			return;
+		}
+
+		//  clear source groups
 		for (int i = 0; i < bdv.getViewer().getState().numSourceGroups(); ++i)
 		{
 			SourceGroup sg = bdv.getViewer().getState().getSourceGroups().get( i );
@@ -186,12 +206,12 @@ public class BDVPopupStitching extends BDVPopup
 
 		final List<BasicViewDescription< ? > > vds = new ArrayList<>();
 		final Map<BasicViewDescription< ? >, Integer> vdToSource = new HashMap<>();
-		
+
 
 		for(int i = 0; i < bdv.getViewer().getState().getSources().size(); ++i)
 		{
 			Integer timepointId = data.getSequenceDescription().getTimePoints().getTimePointsOrdered().get( bdv.getViewer().getState().getCurrentTimepoint()).getId();
-			
+
 			SpimSource<?> src = (SpimSource< ? >)((TransformedSource< ? >)bdv.getViewer().getState().getSources().get( i ).getSpimSource()).getWrappedSource();
 			BasicViewDescription< ? > vd = data.getSequenceDescription().getViewDescriptions().get( new ViewId( timepointId, src.getSetupId()) );
 			vds.add( vd );
@@ -199,7 +219,7 @@ public class BDVPopupStitching extends BDVPopup
 		}
 
 		final List< Group< BasicViewDescription< ? > > > groupByAttributes = Group.combineBy( vds, groupingFactors );
-		
+
 		for (int gi = 0; gi < groupByAttributes.size(); gi ++)
 		{
 			Group< BasicViewDescription< ? > > vdsI = groupByAttributes.get( gi );
@@ -220,6 +240,16 @@ public class BDVPopupStitching extends BDVPopup
 
 	public static void colorByFactors(BigDataViewer bdv, AbstractSpimData< ? > data, Set<Class<? extends Entity>> groupingFactors, long cOffset)
 	{
+		// For large datasets: skip the O(n) grouping logic and directly white all sources.
+		// colorMode=true uses colorSources(SetupAssignments, offset) which iterates all setups;
+		// this is the symmetric no-color path — same O(n) cost, user-initiated.
+		final int numSources = bdv.getSetupAssignments().getConverterSetups().size();
+		if ( numSources > 1000 )
+		{
+			BDVTools.whiteSourcesBatch( bdv );
+			return;
+		}
+
 		final List<BasicViewDescription< ? > > vds = new ArrayList<>();
 		final Map<BasicViewDescription< ? >, ConverterSetup> vdToCs = new HashMap<>();
 
@@ -240,7 +270,7 @@ public class BDVPopupStitching extends BDVPopup
 		// one group -> white
 		if (vdGroups.size() == 1)
 		{
-			FilteredAndGroupedExplorerPanel.whiteSources(bdv.getSetupAssignments().getConverterSetups());
+			BDVTools.whiteSources(bdv.getSetupAssignments().getConverterSetups());
 			ScrollableBrightnessDialog.updateBrightnessPanels( bdv );
 			return;
 		}
@@ -308,7 +338,7 @@ public class BDVPopupStitching extends BDVPopup
 		if ( !bdv.tryLoadSettings( panel.xml().toString() ) )
 			BDVPopup.initBrightness( 0.001, 0.999, bdv.getViewerFrame() );
 
-		FilteredAndGroupedExplorerPanel.setFusedModeSimple( bdv, panel.getSpimData() );
+		BDVTools.setFusedModeSimple( bdv, panel.getSpimData() );
 
 		minMaxGroupByChannels( bdv, panel.getSpimData() );
 		colorByChannels( bdv, panel.getSpimData(), 0 );
@@ -340,7 +370,7 @@ public class BDVPopupStitching extends BDVPopup
 			new Thread(() -> {closeBDV();}).start();
 
 		this.bdv = existingBdv;
-		FilteredAndGroupedExplorerPanel.setFusedModeSimple( bdv, panel.getSpimData() );
+		BDVTools.setFusedModeSimple( bdv, panel.getSpimData() );
 
 		minMaxGroupByChannels( bdv, panel.getSpimData() );
 		colorByChannels( bdv, panel.getSpimData(), 0);
