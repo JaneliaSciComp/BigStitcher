@@ -58,6 +58,7 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BasicBDVPopup;
+import util.BDVTools;
 
 public class ReadTileConfigurationPanel extends JPanel
 {
@@ -221,7 +222,7 @@ public class ReadTileConfigurationPanel extends JPanel
 		// reset and repaint Bdv if necessary
 		if ( bdvPopup.bdvRunning() )
 		{
-			FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+			BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 			bdvPopup.getBDV().getViewer().requestRepaint();
 		}
 
@@ -296,7 +297,7 @@ public class ReadTileConfigurationPanel extends JPanel
 		// reset and repaint Bdv if necessary
 		if ( bdvPopup.bdvRunning() )
 		{
-			FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+			BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 			bdvPopup.getBDV().getViewer().requestRepaint();
 		}
 	}

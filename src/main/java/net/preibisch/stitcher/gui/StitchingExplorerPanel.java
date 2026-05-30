@@ -111,7 +111,8 @@ import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.ResavePopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.Separator;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.SimpleHyperlinkPopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.VisualizeNonRigid;
-import net.preibisch.mvrecon.fiji.spimdata.explorer.util.ColorStream;
+import util.BDVTools;
+import util.ColorStream;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.filemap2.FileMapImgLoaderLOCI2;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.flatfield.FlatfieldCorrectionWrappedImgLoader;
 import net.preibisch.mvrecon.fiji.spimdata.interestpoints.InterestPoints;
@@ -948,7 +949,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 			if ( vd.getTimePointId() == firstTP.getId() )
 				active[getBDVSourceIndex( vd.getViewSetup(), data )] = true;
 
-		resetBDVManualTransformations( bdvPopup().bdv );
+		BDVTools.resetBDVManualTransformations( bdvPopup().bdv );
 
 		List< Pair< Group< ViewId >, Group< ViewId > > > activeLinks = new ArrayList< >();
 

@@ -42,6 +42,7 @@ import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.XmlIoSpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorer;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListener;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorer;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorerPanel;
@@ -166,7 +167,7 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 				bdvExisting.getViewer().removeTransformListener( ((StitchingExplorerPanel< AS >) panel).linkOverlay );
 				bdvExisting.getViewer().getDisplay().removeOverlayRenderer( ((StitchingExplorerPanel< AS >) panel).linkOverlay );
 				((StitchingExplorerPanel< AS >) panel).quitLinkExplorer();
-				FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvExisting );
+				BDVTools.resetBDVManualTransformations( bdvExisting );
 			}
 //			new Thread( () -> {panel.bdvPopup().closeBDV();} ).start();			
 		}

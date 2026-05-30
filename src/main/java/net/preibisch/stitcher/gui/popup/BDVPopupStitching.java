@@ -56,11 +56,12 @@ import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPa
 import net.preibisch.mvrecon.fiji.spimdata.explorer.GroupedRowWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.bdv.ScrollableBrightnessDialog;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVPopup;
-import net.preibisch.mvrecon.fiji.spimdata.explorer.util.ColorStream;
 import net.preibisch.mvrecon.fiji.spimdata.imgloaders.AbstractImgLoader;
 import net.preibisch.mvrecon.process.interestpointregistration.pairwise.constellation.grouping.Group;
 import net.preibisch.stitcher.gui.MaximumProjectorARGB;
 import net.preibisch.stitcher.gui.overlay.LinkOverlay;
+import util.BDVTools;
+import util.ColorStream;
 
 public class BDVPopupStitching extends BDVPopup
 {
@@ -240,7 +241,7 @@ public class BDVPopupStitching extends BDVPopup
 		// one group -> white
 		if (vdGroups.size() == 1)
 		{
-			FilteredAndGroupedExplorerPanel.whiteSources(bdv.getSetupAssignments().getConverterSetups());
+			BDVTools.whiteSources(bdv.getSetupAssignments().getConverterSetups());
 			ScrollableBrightnessDialog.updateBrightnessPanels( bdv );
 			return;
 		}
@@ -308,7 +309,7 @@ public class BDVPopupStitching extends BDVPopup
 		if ( !bdv.tryLoadSettings( panel.xml().toString() ) )
 			BDVPopup.initBrightness( 0.001, 0.999, bdv.getViewerFrame() );
 
-		FilteredAndGroupedExplorerPanel.setFusedModeSimple( bdv, panel.getSpimData() );
+		BDVTools.setFusedModeSimple( bdv, panel.getSpimData() );
 
 		minMaxGroupByChannels( bdv, panel.getSpimData() );
 		colorByChannels( bdv, panel.getSpimData(), 0 );
@@ -340,7 +341,7 @@ public class BDVPopupStitching extends BDVPopup
 			new Thread(() -> {closeBDV();}).start();
 
 		this.bdv = existingBdv;
-		FilteredAndGroupedExplorerPanel.setFusedModeSimple( bdv, panel.getSpimData() );
+		BDVTools.setFusedModeSimple( bdv, panel.getSpimData() );
 
 		minMaxGroupByChannels( bdv, panel.getSpimData() );
 		colorByChannels( bdv, panel.getSpimData(), 0);

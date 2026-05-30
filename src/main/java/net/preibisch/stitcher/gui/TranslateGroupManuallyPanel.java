@@ -57,6 +57,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListener;
+import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVPopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BasicBDVPopup;
 import net.preibisch.mvrecon.process.boundingbox.BoundingBoxMaximal;
@@ -267,7 +268,7 @@ public class TranslateGroupManuallyPanel extends JPanel implements SelectedViewD
 		// reset and repaint Bdv if necessary
 		if (bdvPopup.bdvRunning())
 		{
-			FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+			BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 			bdvPopup.updateBDV();
 		}
 	}
@@ -286,7 +287,7 @@ public class TranslateGroupManuallyPanel extends JPanel implements SelectedViewD
 		if (!bdvPopup.bdvRunning())
 			return;
 
-		FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+		BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 		
 		final List< SourceState< ? > > sourceStates = bdvPopup.getBDV().getViewer().getVisibilityAndGrouping().getSources();
 		final int currentTimepoint = bdvPopup.getBDV().getViewer().getState().getCurrentTimepoint();
@@ -350,7 +351,7 @@ public class TranslateGroupManuallyPanel extends JPanel implements SelectedViewD
 		// reset and repaint Bdv if necessary
 		if ( bdvPopup.bdvRunning() )
 		{
-			//FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+			//BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 			//bdvPopup.getBDV().getViewer().requestRepaint();
 		}
 		
@@ -393,7 +394,7 @@ public class TranslateGroupManuallyPanel extends JPanel implements SelectedViewD
 		// reset and repaint Bdv if necessary
 		if ( bdvPopup.bdvRunning() )
 		{
-			FilteredAndGroupedExplorerPanel.resetBDVManualTransformations( bdvPopup.getBDV() );
+			BDVTools.resetBDVManualTransformations( bdvPopup.getBDV() );
 			bdvPopup.getBDV().getViewer().requestRepaint();
 		}
 		
