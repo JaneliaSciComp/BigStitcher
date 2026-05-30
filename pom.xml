@@ -120,11 +120,31 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>8.1.2</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.0-SNAPSHOT</multiview-reconstruction.version>
 
 		<bigdataviewer-n5.version>1.0.2</bigdataviewer-n5.version>
 		<mpicbg.mpicbg.version>1.6.6</mpicbg.mpicbg.version>
 		<generic-archiver.version>1.1.0</generic-archiver.version>
+
+		<!-- Mirror multiview-reconstruction 9.0.0 (zarrv3) dependency overrides so the
+		     transitive n5/imglib2 versions match what MVR was compiled against.
+		     TEMP: Until pom-scijava 44.0.0 is released. -->
+		<imglib2.version>8.0.1</imglib2.version>
+		<imglib2-cache.version>1.0.0-beta-20</imglib2-cache.version>
+		<imglib2-realtransform.version>4.0.5</imglib2-realtransform.version>
+		<imglib2-algorithm.version>0.18.3</imglib2-algorithm.version>
+		<bigdataviewer-core.version>10.6.5</bigdataviewer-core.version>
+		<mpicbg.version>1.6.6</mpicbg.version>
+
+		<!-- N5 alpha versions for Zarr v3 shard support -->
+		<!-- See: https://imglib.github.io/imglib2-blog/posts/2025-12-22-n5-shard-dev/ -->
+		<n5.version>4.0.0-alpha-12</n5.version>
+		<n5-hdf5.version>2.3.0-alpha-6</n5-hdf5.version>
+		<n5-imglib2.version>7.1.0-alpha-8</n5-imglib2.version>
+		<n5-universe.version>2.4.0-alpha-6</n5-universe.version>
+		<n5-zarr.version>2.0.0-alpha-8</n5-zarr.version>
+		<n5-zstandard.version>2.0.0-alpha-4</n5-zstandard.version>
+		<n5-blosc.version>2.0.0-alpha-4</n5-blosc.version>
 
 	</properties>
 
