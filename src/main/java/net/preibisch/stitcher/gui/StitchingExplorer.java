@@ -67,6 +67,11 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 
 	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io )
 	{
+		this( data, xml, io, true );
+	}
+
+	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io, final boolean openBDV )
+	{
 		this.data = data;
 		this.xml = xml;
 		this.io = io;
@@ -96,7 +101,7 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 
 		header.add( buttons, BorderLayout.WEST );
 
-		panel = new StitchingExplorerPanel< AS >( this, data, xml, io , true);
+		panel = new StitchingExplorerPanel< AS >( this, data, xml, io , openBDV);
 
 		frame.add( header, BorderLayout.NORTH );
 		frame.add( panel, BorderLayout.CENTER );
@@ -156,7 +161,7 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		frame.setTitle( mode == Mode.STITCHING ? "Stitching Explorer" : "Multiview Explorer" );
 		
 		// TODO: is there a smarter way than closing and reopening BDV?
-		boolean bdvWasOpen = panel.bdvPopup().bdvRunning();
+		boolean bdvWasOpen = panel.bdvPopup() != null && panel.bdvPopup().bdvRunning();
 		BigDataViewer bdvExisting = null;
 		if (bdvWasOpen)
 		{
@@ -190,7 +195,7 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		frame.pack();
 
 		
-		if (bdvWasOpen)
+		if (bdvWasOpen && panel.bdvPopup() != null)
 			panel.bdvPopup().setBDV( bdvExisting );
 //			for (ActionListener a : panel.bdvPopup().getActionListeners())
 //				a.actionPerformed(( new ActionEvent( this, ActionEvent.ACTION_PERFORMED, null )));
@@ -213,7 +218,7 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		try
 		{
 			new Thread(() -> {
-				if ( panel.bdvPopup().bdvRunning() )
+				if ( panel.bdvPopup() != null && panel.bdvPopup().bdvRunning() )
 					panel.bdvPopup().closeBDV();
 			}).start();
 		}

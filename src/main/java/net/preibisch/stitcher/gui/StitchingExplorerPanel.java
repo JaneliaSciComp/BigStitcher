@@ -127,6 +127,7 @@ import net.preibisch.stitcher.gui.bdv.BDVVisibilityHandlerNeighborhood;
 import net.preibisch.stitcher.gui.overlay.DemoLinkOverlay;
 import net.preibisch.stitcher.gui.overlay.LinkOverlay;
 import net.preibisch.stitcher.gui.popup.BDVPopupStitching;
+import net.preibisch.stitcher.gui.popup.LazyBDVPopupStitching;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopup;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopup.Method;
 import net.preibisch.stitcher.gui.popup.CalculatePCPopupExpertBatch;
@@ -205,11 +206,19 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		{
 			if (!bdvPopup().bdvRunning())
 			{
-				bdvPopup().bdv = BDVPopupStitching.createBDV( this, linkOverlay );
-				
-				// Update BDV to show all grouped tiles based on initial table selection
-				if ( !selectedRows.isEmpty() )
-					updateBDV( bdvPopup().bdv, colorMode, data, firstSelectedVD, selectedRows );
+				if ( bdvPopup() instanceof LazyBDVPopupStitching )
+				{
+					// lazy / on-the-fly mode: open empty BDV, sources are added as views are selected
+					( (LazyBDVPopupStitching) bdvPopup() ).openBDV( this );
+				}
+				else
+				{
+					bdvPopup().bdv = BDVPopupStitching.createBDV( this, linkOverlay );
+
+					// Update BDV to show all grouped tiles based on initial table selection
+					if ( !selectedRows.isEmpty() )
+						updateBDV( bdvPopup().bdv, colorMode, data, firstSelectedVD, selectedRows );
+				}
 			}
 		}
 
@@ -821,7 +830,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		final ArrayList< ExplorerWindowSetable > popups = new ArrayList< ExplorerWindowSetable >();
 
 		popups.add( new LabelPopUp( " Displaying" ) );
-		popups.add( new BDVPopupStitching( linkOverlay ) );
+		popups.add( BDVPopup.useLazyMode ? new LazyBDVPopupStitching( linkOverlay ) : new BDVPopupStitching( linkOverlay ) );
 		popups.add( new DisplayRawImagesPopup() );
 		popups.add( new QualityPopup() );
 		popups.add( new MaxProjectPopup() );
