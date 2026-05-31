@@ -896,6 +896,20 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		return popups;
 	}
 
+	/**
+	 * Make all currently-selected views visible in BDV. Called e.g. after global
+	 * optimization so the full stitched result is shown, instead of leaving a
+	 * leftover link-preview / pairwise selection (a tile pair) on screen.
+	 */
+	public void showSelectedInBDV()
+	{
+		final BDVPopup b = bdvPopup();
+		if ( b == null || b.bdv == null )
+			return;
+
+		updateBDV( b.bdv, colorMode, data, firstSelectedVD, selectedRows );
+	}
+
 	public void updateBDVPreviewMode()
 	{
 		// BDV is not open, nothing to do

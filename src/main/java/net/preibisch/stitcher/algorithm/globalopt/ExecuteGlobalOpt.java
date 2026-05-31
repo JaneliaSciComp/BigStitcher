@@ -155,5 +155,11 @@ public class ExecuteGlobalOpt implements Runnable
 
 		panel.updateContent();
 		panel.bdvPopup().updateBDV();
+
+		// After global optimization, re-show the full current selection in BDV. Otherwise a
+		// leftover link-preview / pairwise selection (showing only a tile pair) stays visible
+		// even though all stitched views remain selected in the explorer.
+		if ( panel instanceof StitchingExplorerPanel )
+			( (StitchingExplorerPanel< ? >) panel ).showSelectedInBDV();
 	}
 }
