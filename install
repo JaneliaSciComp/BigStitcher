@@ -81,7 +81,8 @@ else
 fi
 
 
-VERSION="2.1.1-SNAPSHOT"
+# derive the version from the pom so the generated launchers never point at a stale jar
+VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 INSTALL_DIR=$(pwd)
 #INSTALL_DIR=${1:-$(pwd)}
 
