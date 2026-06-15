@@ -227,6 +227,17 @@
 		</dependency>
 
 
+		<!-- Pulled transitively (compile) via bio-formats. Re-declared at runtime scope so
+		     it stays available at runtime but is off the compile/javadoc classpath: its jar
+		     has a class in the default package, which the javadoc tool cannot place on the
+		     JDK 9+ module path ("Unable to derive module descriptor") during release. -->
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>turbojpeg</artifactId>
+			<version>${bio-formats.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
