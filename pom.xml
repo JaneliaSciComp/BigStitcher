@@ -99,6 +99,9 @@
 
 		<license.licenseName>gpl_v2</license.licenseName>
 		<license.copyrightOwners>Big Stitcher developers.</license.copyrightOwners>
+		<scijava.jvm.version>21</scijava.jvm.version>
+		<scijava.javadoc.url.java>https://javadoc.scijava.org/Java21/</scijava.javadoc.url.java>
+		<legacyMode>true</legacyMode> <!-- NB: Make javadoc less strict about Java module system. -->
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -120,9 +123,8 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>9.0.0-SNAPSHOT</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.1-SNAPSHOT</multiview-reconstruction.version>
 
-		<mpicbg.mpicbg.version>1.6.6</mpicbg.mpicbg.version>
 		<generic-archiver.version>1.1.0</generic-archiver.version>
 
 		<!-- Mirror multiview-reconstruction 9.0.0 (zarrv3) dependency overrides so the
@@ -133,6 +135,7 @@
 		<imglib2-cache.version>1.0.0-beta-20</imglib2-cache.version>
 		<imglib2-realtransform.version>4.0.5</imglib2-realtransform.version>
 		<imglib2-algorithm.version>0.18.3</imglib2-algorithm.version>
+		<multiview-simulation.version>0.3.1</multiview-simulation.version>
 		<mpicbg.version>1.6.6</mpicbg.version>
 
 		<!-- N5 versions with Zarr v3 shard support (graduated from alpha) -->
