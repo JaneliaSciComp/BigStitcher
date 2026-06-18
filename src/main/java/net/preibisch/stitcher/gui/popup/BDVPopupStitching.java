@@ -140,6 +140,12 @@ public class BDVPopupStitching extends BDVPopup
 		{
 			Integer timepointId = data.getSequenceDescription().getTimePoints().getTimePointsOrdered().get( bdv.getViewer().getState().getCurrentTimepoint()).getId();
 			BasicViewDescription< ? > vd = data.getSequenceDescription().getViewDescriptions().get( new ViewId( timepointId, cs.getSetupId() ) );
+
+			// no view description for this setup at the current timepoint -> skip
+			// (otherwise the null propagates into Group.splitBy and breaks the sort)
+			if ( vd == null )
+				continue;
+
 			vds.add( vd );
 			vdToCs.put( vd, cs );
 		}
@@ -195,6 +201,12 @@ public class BDVPopupStitching extends BDVPopup
 			
 			SpimSource<?> src = (SpimSource< ? >)((TransformedSource< ? >)bdv.getViewer().getState().getSources().get( i ).getSpimSource()).getWrappedSource();
 			BasicViewDescription< ? > vd = data.getSequenceDescription().getViewDescriptions().get( new ViewId( timepointId, src.getSetupId()) );
+
+			// no view description for this source at the current timepoint -> skip
+			// (otherwise the null propagates into Group.combineBy and breaks the sort)
+			if ( vd == null )
+				continue;
+
 			vds.add( vd );
 			vdToSource.put( vd, i );
 		}
@@ -228,6 +240,12 @@ public class BDVPopupStitching extends BDVPopup
 		{
 			Integer timepointId = data.getSequenceDescription().getTimePoints().getTimePointsOrdered().get( bdv.getViewer().getState().getCurrentTimepoint()).getId();
 			BasicViewDescription< ? > vd = data.getSequenceDescription().getViewDescriptions().get( new ViewId( timepointId, cs.getSetupId() ) );
+
+			// no view description for this setup at the current timepoint -> skip
+			// (otherwise the null propagates into Group.splitBy and breaks the sort)
+			if ( vd == null )
+				continue;
+
 			vds.add( vd );
 			vdToCs.put( vd, cs );
 		}
