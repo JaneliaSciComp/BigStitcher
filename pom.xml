@@ -99,6 +99,7 @@
 
 		<license.licenseName>gpl_v2</license.licenseName>
 		<license.copyrightOwners>Big Stitcher developers.</license.copyrightOwners>
+		<scijava.jvm.version>21</scijava.jvm.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -120,7 +121,7 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>9.0.0-SNAPSHOT</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.1</multiview-reconstruction.version>
 
 		<mpicbg.mpicbg.version>1.6.6</mpicbg.mpicbg.version>
 		<generic-archiver.version>1.1.0</generic-archiver.version>
@@ -147,6 +148,8 @@
 		<n5-zarr.version>2.0.1</n5-zarr.version>
 		<n5-zstandard.version>2.0.0</n5-zstandard.version>
 
+		<!-- JaCoCo 0.8.14+ required for Java 26 (class file major version 70) support -->
+		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 	</properties>
 
 	<repositories>
