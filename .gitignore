@@ -4,6 +4,9 @@
 /.project
 /.settings/
 
+# Executable #
+bigstitcher
+
 # IntelliJ  #
 .idea/
 *.iml
