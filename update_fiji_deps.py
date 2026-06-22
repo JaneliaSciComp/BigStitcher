@@ -20,7 +20,7 @@ Example — build/refresh the test Fiji in one reproducible call (run on a fresh
 re-extracted Fiji), then clear macOS quarantine on the new native jars:
     python3 update_fiji_deps.py ~/Downloads/Fiji --apply --transitive closure \\
         --exclude pyramidio,ijp-kheops,generic-archiver \\
-        --remove aws-java-sdk-core,aws-java-sdk-s3,aws-java-sdk-kms,jmespath-java
+        --remove aws-java-sdk-core,aws-java-sdk-s3,aws-java-sdk-kms,jmespath-java,SPIM_Registration
     xattr -dr com.apple.quarantine ~/Downloads/Fiji
 """
 
@@ -804,6 +804,13 @@ def main() -> None:
                     "aws-java-sdk-kms,jmespath-java'. Unlike --exclude this does not touch "
                     "dependency resolution — it just deletes matching jars (filename-based, "
                     "for reproducible cleanup of unrelated cruft).")
+    ap.add_argument("--add", default="", metavar="P[,P...]",
+                    help="whitelist of deps to INSTALL when new (direct or transitive): when "
+                    "given, a jar is added only if it matches a pattern. Patterns: "
+                    "'groupId:artifactId', 'groupId:*', or bare 'groupId'/'artifactId'. E.g. "
+                    "'software.amazon.awssdk:*,io.netty:*,software.amazon.eventstream' pulls just "
+                    "the AWS SDK v2 stack. Upgrades of already-present jars and the project jars "
+                    "are not affected.")
     args = ap.parse_args()
 
     dry_run = not args.apply
@@ -839,9 +846,26 @@ def main() -> None:
     # roots) never walk their transitive subtree either.
     exclude_tokens = [t.strip() for t in args.exclude.split(",") if t.strip()]
     remove_tokens = [t.strip().split(":")[-1] for t in args.remove.split(",") if t.strip()]
+    add_tokens = [t.strip() for t in args.add.split(",") if t.strip()]
 
     def is_excluded(g_: str, a_: str) -> bool:
         return any(t in (a_, g_, f"{g_}:{a_}") for t in exclude_tokens)
+
+    def add_allows(g_: str, a_: str) -> bool:
+        """With --add given, a NEW install is allowed only if it matches a pattern
+        ('g:*' = whole group, 'g:a' = exact, bare token = groupId or artifactId)."""
+        if not add_tokens:
+            return True
+        for p in add_tokens:
+            if p.endswith(":*"):
+                if g_ == p[:-2]:
+                    return True
+            elif ":" in p:
+                if f"{g_}:{a_}" == p:
+                    return True
+            elif g_ == p or a_ == p:
+                return True
+        return False
 
     if exclude_tokens:
         dropped = sorted(f"{g}:{a}" for g, a in direct_targets if is_excluded(g, a))
@@ -892,7 +916,7 @@ def main() -> None:
             kept.append((jid, tv))
         # c == 0 -> already current
     adds = sorted((ga, v) for ga, v in direct_targets.items()
-                  if ga not in present_gas and ga not in project_gas)
+                  if ga not in present_gas and ga not in project_gas and add_allows(*ga))
 
     # pom-scijava released baseline — reused for the BOM table below, and to find
     # which direct deps the projects pin AWAY from the BOM (whose transitive subtree
@@ -930,7 +954,8 @@ def main() -> None:
         for (g_, a_), v in sorted(raw.items()):
             ex = find_present_jar(fiji, g_, a_)
             if ex is None:
-                trans_adds.append(((g_, a_), v))
+                if add_allows(g_, a_):                 # --add whitelist (new installs only)
+                    trans_adds.append(((g_, a_), v))
             elif compare_versions(v, ex[1]) > 0:
                 trans_upgrades.append(((g_, a_), v, ex[0], ex[1]))
             # else: already present at an equal/newer version -> leave it
@@ -978,8 +1003,9 @@ def main() -> None:
         cl = f" ({jid.classifier})" if jid.classifier else ""
         log(f"    {jid.group}:{jid.artifact}{cl}  {jid.version}  ->  {tgt}")
 
+    addnote = "  [--add whitelist active]" if add_tokens else ""
     skip = "  — SKIPPED (upgrade-only)" if upgrade_only else ""
-    log(f"\n(B) ADD — declared by your projects, absent from Fiji  [{len(adds)}]{skip}")
+    log(f"\n(B) ADD — declared by your projects, absent from Fiji  [{len(adds)}]{addnote}{skip}")
     if adds and not upgrade_only:
         log("    (-> plugins/ if the jar ships a plugins.config, else jars/)")
     for (g_, a_), v in adds:
@@ -987,7 +1013,7 @@ def main() -> None:
 
     new_skip = " SKIPPED" if upgrade_only else ""
     log(f"\n(B2) TRANSITIVE (--transitive={args.transitive}) — pulled in by upgraded "
-        f"libraries  [{len(trans_adds)} new{new_skip}, {len(trans_upgrades)} upgraded]")
+        f"libraries  [{len(trans_adds)} new{new_skip}, {len(trans_upgrades)} upgraded]{addnote}")
     for (g_, a_), v in trans_adds:
         log(f"    {g_}:{a_}  ->  install {v}  (new{new_skip.lower()})")
     for (g_, a_), v, _op, ov in trans_upgrades:
