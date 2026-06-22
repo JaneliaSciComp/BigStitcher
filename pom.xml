@@ -123,11 +123,11 @@
 		<n5-zarr-version>1.5.0</n5-zarr-version>
 		-->
 
-		<multiview-reconstruction.version>9.0.1</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.2</multiview-reconstruction.version>
 
 		<generic-archiver.version>1.1.0</generic-archiver.version>
 
-		<!-- Mirror multiview-reconstruction 9.0.1 (zarrv3) dependency overrides so the
+		<!-- Mirror multiview-reconstruction 9.0.2 (zarrv3) dependency overrides so the
 		     transitive n5/imglib2 versions match what MVR was compiled against.
 		     TEMP: Until pom-scijava 44.0.0 is updated for ZARRv3. -->
 		<bigdataviewer-core.version>10.6.11</bigdataviewer-core.version>
