@@ -381,10 +381,14 @@ _TREE_LINE = re.compile(r"^([| +\\-]*)([A-Za-z0-9].*)$")
 
 def transitive_frontier(mvn: str, scijava_version: str, deps: list,
                         present_gas: set, direct_gas: set, project_gas: set) -> dict:
-    """Absent transitive deps hanging off the given (changed) deps -> {(g,a): version}.
-    Walks `mvn dependency:tree` and PRUNES any subtree rooted at a dep Fiji already
-    has (or that we handle directly) — so e.g. ijp-kheops -> bio-formats(present) -> OMERO
-    is not pulled in, while n5-aws-s3 -> (absent) AWS SDK v2 is. Offline-first."""
+    """Transitive deps hanging off the given (changed) deps -> {(g,a): version}, as
+    CANDIDATES the caller then splits into add / upgrade / leave.
+    Walks `mvn dependency:tree`. A dep Fiji already has is still EMITTED (so the caller
+    can upgrade it when the changed libs need a newer version than is installed — e.g.
+    n5 4.0.1 needs commons-compress 1.28.0 for GzipCompressorInputStream.builder()), but
+    its subtree is PRUNED so e.g. ijp-kheops -> bio-formats(present) -> OMERO is not
+    pulled in. Deps we handle elsewhere (declared-direct / project artifacts) are pruned
+    WITHOUT emitting. Absent deps are emitted and descended into. Offline-first."""
     if not deps:
         return {}
     dep_xml = "\n".join(
@@ -427,8 +431,15 @@ def transitive_frontier(mvn: str, scijava_version: str, deps: list,
             prune_at = depth
             continue
         ga = (g, a)
-        if ga in present_gas or ga in direct_gas or ga in project_gas:
-            prune_at = depth             # Fiji already provides it -> prune its subtree
+        if ga in direct_gas or ga in project_gas:
+            prune_at = depth             # handled elsewhere -> prune its subtree, don't emit
+        elif ga in present_gas:
+            # Fiji has it, but the upgraded libraries may need a NEWER version than is
+            # installed (e.g. n5 4.0.1 needs commons-compress 1.28.0). Emit it so the
+            # caller can UPGRADE it when older (it is never downgraded); prune its subtree
+            # so we don't drag in the present dep's own dependencies.
+            frontier[ga] = version
+            prune_at = depth
         else:
             frontier[ga] = version       # absent -> add, and descend into its children
     return frontier
@@ -787,7 +798,9 @@ def main() -> None:
                              "closure-upgrade-only", "full", "full-upgrade-only"],
                     help="REQUIRED. Which dependencies to handle. SCOPE: direct = the projects' "
                     "direct deps only; closure = + the subtree pulled in by upgraded libs "
-                    "(pruned at deps Fiji already has; needed for the new n5 S3/HDF5 backends); "
+                    "(subtrees rooted at deps Fiji already has are pruned, but a present dep "
+                    "OLDER than the upgraded libs need is still upgraded — e.g. n5 4.0.1 needs "
+                    "commons-compress 1.28.0; needed for the new n5 S3/HDF5 backends); "
                     "full = + the projects' entire runtime closure. The '-upgrade-only' suffix "
                     "suppresses ALL new installs: it only version-bumps dependency jars already "
                     "present in Fiji (the project plugin jars are still installed).")
@@ -925,17 +938,20 @@ def main() -> None:
     bom_rel = ((base_effective_dm(mvn, released, offline=True)
                 or base_effective_dm(mvn, released, offline=False)) if released else {})
 
-    # Transitive deps the upgraded libraries pull in that Fiji lacks (--transitive).
-    # Defined against the BOM baseline (not the live Fiji), so re-runs are stable.
-    # Only jars ABSENT from Fiji are added; present ones are never touched here.
+    # Transitive deps the upgraded libraries pull in (--transitive). Defined against the
+    # BOM baseline (not the live Fiji), so re-runs are stable. Absent jars are ADDED;
+    # present jars OLDER than what the upgraded libs need are UPGRADED (never downgraded),
+    # e.g. n5 4.0.1 needs commons-compress 1.28.0 for GzipCompressorInputStream.builder().
     trans_adds = []        # [((g, a), version)]              truly absent -> install
     trans_upgrades = []    # [((g, a), version, old_path, old_version)]  present older -> replace
     if scope != "direct":
         log(f"Resolving transitive dependencies ({args.transitive}) ...")
         if scope == "full":
             clo = full_runtime_closure(mvn, projects)
+            # Keep present deps as candidates so present-but-too-old transitive deps get
+            # UPGRADED (the split below leaves present-equal/newer ones untouched).
             raw = {ga: v for ga, v in clo.items()
-                   if ga not in present_gas and ga not in direct_targets
+                   if ga not in direct_targets
                    and ga not in project_gas and not is_excluded(*ga)}
         else:  # closure: subtree of the deps our projects override away from the BOM,
                # pruned at any dep Fiji already has (avoids dragging in OMERO/Scala/etc.)
