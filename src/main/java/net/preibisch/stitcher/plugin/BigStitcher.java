@@ -123,10 +123,14 @@ public class BigStitcher implements Command, PlugIn
 		// Warn before unconditionally opening BDV on large datasets — it's slow and often
 		// not what the user wants. Below the threshold, behavior is unchanged (BDV opens eagerly).
 		boolean openBDV = true;
+		// Default (no dialog shown) stays Stitching mode; the advanced dialog offers an
+		// opt-in (pre-checked) to start in Multiview mode instead.
+		boolean startInMultiview = false;
 		final int totalViews = data.getSequenceDescription().getViewSetups().size() * data.getSequenceDescription().getTimePoints().size();
 		if ( advanced || totalViews > LARGE_DATASET_THRESHOLD )
 		{
 			final GenericDialog gd = new GenericDialog( "Large dataset" );
+			gd.addCheckbox( "Start_in_multiview_mode", true );
 			gd.addMessage( "This dataset has " + totalViews + " views. Opening BigDataViewer for many views can be slow." );
 			gd.addCheckbox( "Open_BigDataViewer_at_startup", totalViews < LARGE_DATASET_DISABLE_BDV_THRESHOLD );
 			gd.addCheckbox( "Use_lazy_BDV_mode (adds & removes views when selected)", totalViews >= LARGE_DATASET_LAZY_RECOMMEND_THRESHOLD );
@@ -137,6 +141,7 @@ public class BigStitcher implements Command, PlugIn
 			gd.showDialog();
 			if ( gd.wasCanceled() )
 				return;
+			startInMultiview = gd.getNextBoolean();
 			openBDV = gd.getNextBoolean();
 			BDVPopup.useLazyMode = gd.getNextBoolean();
 			InterestPointMatchCreator.maxPerPairLog = Math.max( 0, ( int ) Math.round( gd.getNextNumber() ) );
@@ -145,7 +150,7 @@ public class BigStitcher implements Command, PlugIn
 		}
 
 		final StitchingExplorer< SpimData2 > explorer =
-				new StitchingExplorer< >( data, xml, io, openBDV );
+				new StitchingExplorer< >( data, xml, io, openBDV, startInMultiview );
 
 		explorer.getFrame().toFront();
 	}

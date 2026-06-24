@@ -72,6 +72,11 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 
 	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io, final boolean openBDV )
 	{
+		this( data, xml, io, openBDV, false );
+	}
+
+	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io, final boolean openBDV, final boolean startInMultiview )
+	{
 		this.data = data;
 		this.xml = xml;
 		this.io = io;
@@ -130,6 +135,10 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		if ( panel.getTableModel().getRowCount() == 1 )
 		{
 			IOFunctions.println( "Only one tile, starting in MultiView mode." );
+			switchMode( Mode.MULTIVIEW );
+		}
+		else if ( startInMultiview )
+		{
 			switchMode( Mode.MULTIVIEW );
 		}
 	}
