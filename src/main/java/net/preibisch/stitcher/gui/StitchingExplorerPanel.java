@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -175,6 +176,10 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 
 	protected JCheckBox checkboxGroupChannels;
 	protected JCheckBox checkboxGroupIllums;
+	protected JCheckBox hideMissingViewsCheckbox;
+
+	/** Underlying model before the {@link StitchingTableModelDecorator} wrap; needed for "Hide Missing Views". */
+	protected FilteredAndGroupedTableModel< AS > filteredTableModel;
 
 	public StitchingExplorerPanel(final FilteredAndGroupedExplorer< AS > explorer, final AS data, final URI xml,
 			final XmlIoSpimData2 io, boolean requestStartBDV)
@@ -282,6 +287,42 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 			checkboxGroupChannels.setSelected( false );
 		if ( checkboxGroupIllums != null )
 			checkboxGroupIllums.setSelected( false );
+	}
+
+	/**
+	 * Updates the enabled state and label of the "Hide Missing Views" checkbox.
+	 * The checkbox is only enabled when the dataset has missing views.
+	 */
+	public void updateHideMissingViewsCheckbox()
+	{
+		if ( hideMissingViewsCheckbox == null )
+			return;
+
+		final int missingCount = getMissingViewsCount();
+		final boolean hasMissingViews = missingCount > 0;
+
+		hideMissingViewsCheckbox.setText( hasMissingViews
+				? "Hide Missing Views (" + missingCount + ")"
+				: "Hide Missing Views" );
+		hideMissingViewsCheckbox.setEnabled( hasMissingViews );
+
+		// If there are no missing views but the box was checked, uncheck and unfilter.
+		if ( !hasMissingViews && hideMissingViewsCheckbox.isSelected() )
+		{
+			hideMissingViewsCheckbox.setSelected( false );
+			filteredTableModel.setHideMissingViews( false );
+		}
+	}
+
+	private int getMissingViewsCount()
+	{
+		if ( getSpimData() == null || getSpimData().getSequenceDescription() == null )
+			return 0;
+		if ( getSpimData().getSequenceDescription().getMissingViews() == null )
+			return 0;
+		if ( getSpimData().getSequenceDescription().getMissingViews().getMissingViews() == null )
+			return 0;
+		return getSpimData().getSequenceDescription().getMissingViews().getMissingViews().size();
 	}
 
 
@@ -393,8 +434,8 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		// only do that if needed
 		// initLinkExplorer();
 
-		tableModel = new FilteredAndGroupedTableModel< AS >( this );
-		tableModel = new StitchingTableModelDecorator< >( tableModel );
+		filteredTableModel = new FilteredAndGroupedTableModel< AS >( this );
+		tableModel = new StitchingTableModelDecorator< >( filteredTableModel );
 		( (StitchingTableModelDecorator< AS >) tableModel ).setStitchingResults( stitchingResults );
 
 		tableModel.addGroupingFactor( Channel.class );
@@ -543,6 +584,11 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		addDemoLink(); // 'l' or 'L'
 		addHelp(); // F1
 		addViewSetupIdShortcut(); // 'v' or 'V'
+		addMaxIntensityShortcut(); // '[' ']' adjust max intensity of visible sources; '{' '}' all sources
+		addNeighboursShortcut(); // 'n' or 'N' to highlight correspondence-connected views
+		addOverlapShortcut();    // 'o' or 'O' to highlight geometrically-overlapping views
+		addSelectionDialog();    // '+' to open selection dialog
+		addHistoryNavigation();  // '<' and '>' to navigate selection history
 
 		addScreenshot(); // 's' or 'S'
 
@@ -670,7 +716,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		// checkbox to toggle illumination grouping
 		final JPanel footerGroupIllums = new JPanel();
 		footerGroupIllums.setLayout( new BoxLayout( footerGroupIllums, BoxLayout.LINE_AXIS ) );
-		footerGroupIllums.add( new JLabel( "Group Illuminations:" ) );
+		footerGroupIllums.add( new JLabel( "Group Illums:" ) );
 		this.checkboxGroupIllums = new JCheckBox( "", true );
 		checkboxGroupIllums.addActionListener( new ActionListener()
 		{
@@ -693,6 +739,22 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		footerGroupIllums.add( checkboxGroupIllums );
 		footerGroupIllums.setAlignmentX( RIGHT_ALIGNMENT );
 
+		// checkbox to hide views that are flagged missing in the dataset
+		final JPanel footerHideMissing = new JPanel();
+		footerHideMissing.setLayout( new BoxLayout( footerHideMissing, BoxLayout.LINE_AXIS ) );
+		this.hideMissingViewsCheckbox = new JCheckBox( "Hide Missing Views", false );
+		hideMissingViewsCheckbox.addActionListener( e -> {
+			filteredTableModel.setHideMissingViews( hideMissingViewsCheckbox.isSelected() );
+			updateContent();
+		} );
+		footerHideMissing.add( hideMissingViewsCheckbox );
+		// shortcut hint (n/o only work once running against multiview-reconstruction >= 9.0.8)
+		final JLabel shortcutHint = new JLabel( " n/o: toggle connected/overlapping views" );
+		shortcutHint.setForeground( Color.GRAY );
+		shortcutHint.setFont( shortcutHint.getFont().deriveFont( Font.ITALIC, shortcutHint.getFont().getSize2D() - 1f ) );
+		footerHideMissing.add( shortcutHint );
+		footerHideMissing.setAlignmentX( RIGHT_ALIGNMENT );
+
 		final JPanel footerComboboxes = new JPanel();
 		footerComboboxes.setLayout( new BoxLayout( footerComboboxes, BoxLayout.PAGE_AXIS ) );
 
@@ -704,10 +766,14 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 
 		footerCheckboxes.add( footerGroupChannels );
 		footerCheckboxes.add( footerGroupIllums );
+		footerCheckboxes.add( footerHideMissing );
 
 		footer.add( footerComboboxes );
 		footer.add( footerCheckboxes );
 		footer.setBorder( BorderFactory.createEmptyBorder( 0, 10, 0, 10 ) );
+
+		// only enable when the dataset actually has missing views
+		updateHideMissingViewsCheckbox();
 
 		// footer.add( footer_tp, BorderLayout.NORTH );
 		// footer.add( footer_angle, BorderLayout.SOUTH );
