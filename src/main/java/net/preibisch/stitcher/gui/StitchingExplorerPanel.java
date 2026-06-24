@@ -25,7 +25,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -44,6 +43,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
@@ -585,8 +585,8 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		addHelp(); // F1
 		addViewSetupIdShortcut(); // 'v' or 'V'
 		addMaxIntensityShortcut(); // '[' ']' adjust max intensity of visible sources; '{' '}' all sources
-		addNeighboursShortcut(); // 'n' or 'N' to highlight correspondence-connected views
-		addOverlapShortcut();    // 'o' or 'O' to highlight geometrically-overlapping views
+		// 'n'/'o' (Neighbours/Overlap) are intentionally not registered here — they only make
+		// sense in multiview mode, so they live in the mvr Data Explorer (ViewSetupExplorerPanel).
 		addSelectionDialog();    // '+' to open selection dialog
 		addHistoryNavigation();  // '<' and '>' to navigate selection history
 
@@ -687,40 +687,13 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		footer_angle.add( new JLabel( "Angle:" ) );
 		footer_angle.add( angleCB );
 
-		// checkbox to toggle channel grouping
-		final JPanel footerGroupChannels = new JPanel();
-		footerGroupChannels.setLayout( new BoxLayout( footerGroupChannels, BoxLayout.LINE_AXIS ) );
-		footerGroupChannels.add( new JLabel( "Group Channels:" ) );
-		this.checkboxGroupChannels = new JCheckBox( "", true );
-		checkboxGroupChannels.addActionListener( new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				HashSet< Class< ? extends Entity > > groupingOld = new HashSet< >( tableModel.getGroupingFactors() );
-				if ( checkboxGroupChannels.isSelected() )
-					groupingOld.add( Channel.class );
-				else
-					groupingOld.remove( Channel.class );
-				tableModel.clearGroupingFactors();
-
-				for ( Class< ? extends Entity > c : groupingOld )
-					tableModel.addGroupingFactor( c );
-
-			}
-		} );
-		footerGroupChannels.add( checkboxGroupChannels );
-		footerGroupChannels.setAlignmentX( RIGHT_ALIGNMENT );
+		// Text-bearing checkboxes so the box always sits on the left of its label (consistent
+		// across all three), unlike the old "Label:" + empty-checkbox arrangement.
 
 		// checkbox to toggle illumination grouping
-		final JPanel footerGroupIllums = new JPanel();
-		footerGroupIllums.setLayout( new BoxLayout( footerGroupIllums, BoxLayout.LINE_AXIS ) );
-		footerGroupIllums.add( new JLabel( "Group Illums:" ) );
-		this.checkboxGroupIllums = new JCheckBox( "", true );
+		this.checkboxGroupIllums = new JCheckBox( "Group Illums", true );
 		checkboxGroupIllums.addActionListener( new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
@@ -733,42 +706,59 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 
 				for ( Class< ? extends Entity > c : groupingOld )
 					tableModel.addGroupingFactor( c );
-
 			}
 		} );
-		footerGroupIllums.add( checkboxGroupIllums );
-		footerGroupIllums.setAlignmentX( RIGHT_ALIGNMENT );
+
+		// checkbox to toggle channel grouping
+		this.checkboxGroupChannels = new JCheckBox( "Group Channels", true );
+		checkboxGroupChannels.addActionListener( new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				HashSet< Class< ? extends Entity > > groupingOld = new HashSet< >( tableModel.getGroupingFactors() );
+				if ( checkboxGroupChannels.isSelected() )
+					groupingOld.add( Channel.class );
+				else
+					groupingOld.remove( Channel.class );
+				tableModel.clearGroupingFactors();
+
+				for ( Class< ? extends Entity > c : groupingOld )
+					tableModel.addGroupingFactor( c );
+			}
+		} );
 
 		// checkbox to hide views that are flagged missing in the dataset
-		final JPanel footerHideMissing = new JPanel();
-		footerHideMissing.setLayout( new BoxLayout( footerHideMissing, BoxLayout.LINE_AXIS ) );
 		this.hideMissingViewsCheckbox = new JCheckBox( "Hide Missing Views", false );
 		hideMissingViewsCheckbox.addActionListener( e -> {
 			filteredTableModel.setHideMissingViews( hideMissingViewsCheckbox.isSelected() );
 			updateContent();
 		} );
-		footerHideMissing.add( hideMissingViewsCheckbox );
-		// shortcut hint (n/o only work once running against multiview-reconstruction >= 9.0.8)
-		final JLabel shortcutHint = new JLabel( " n/o: toggle connected/overlapping views" );
-		shortcutHint.setForeground( Color.GRAY );
-		shortcutHint.setFont( shortcutHint.getFont().deriveFont( Font.ITALIC, shortcutHint.getFont().getSize2D() - 1f ) );
-		footerHideMissing.add( shortcutHint );
-		footerHideMissing.setAlignmentX( RIGHT_ALIGNMENT );
+
+		// Row 1: the three checkboxes next to each other
+		final JPanel footerCheckRow = new JPanel();
+		footerCheckRow.setLayout( new BoxLayout( footerCheckRow, BoxLayout.LINE_AXIS ) );
+		footerCheckRow.add( checkboxGroupIllums );
+		footerCheckRow.add( Box.createHorizontalStrut( 12 ) );
+		footerCheckRow.add( checkboxGroupChannels );
+		footerCheckRow.add( Box.createHorizontalStrut( 12 ) );
+		footerCheckRow.add( hideMissingViewsCheckbox );
+		footerCheckRow.setAlignmentX( LEFT_ALIGNMENT );
 
 		final JPanel footerComboboxes = new JPanel();
-		footerComboboxes.setLayout( new BoxLayout( footerComboboxes, BoxLayout.PAGE_AXIS ) );
+		footerComboboxes.setLayout( new BoxLayout( footerComboboxes, BoxLayout.LINE_AXIS ) );
 
 		final JPanel footerCheckboxes = new JPanel();
 		footerCheckboxes.setLayout( new BoxLayout( footerCheckboxes, BoxLayout.PAGE_AXIS ) );
 
 		footerComboboxes.add( footer_tp );
+		footerComboboxes.add( Box.createHorizontalStrut( 12 ) );
 		footerComboboxes.add( footer_angle );
 
-		footerCheckboxes.add( footerGroupChannels );
-		footerCheckboxes.add( footerGroupIllums );
-		footerCheckboxes.add( footerHideMissing );
+		footerCheckboxes.add( footerCheckRow );
 
 		footer.add( footerComboboxes );
+		footer.add( Box.createHorizontalStrut( 24 ) );
 		footer.add( footerCheckboxes );
 		footer.setBorder( BorderFactory.createEmptyBorder( 0, 10, 0, 10 ) );
 
