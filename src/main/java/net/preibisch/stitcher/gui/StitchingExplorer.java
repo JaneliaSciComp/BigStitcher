@@ -46,6 +46,7 @@ import util.BDVTools;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListener;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorer;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ViewSetupExplorerPanel;
+import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BasicBDVPopup;
 import net.preibisch.stitcher.input.GenerateSpimData;
 import net.preibisch.stitcher.plugin.BigStitcher;
 
@@ -71,11 +72,6 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 	}
 
 	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io, final boolean openBDV )
-	{
-		this( data, xml, io, openBDV, false );
-	}
-
-	public StitchingExplorer( final AS data, final URI xml, final XmlIoSpimData2 io, final boolean openBDV, final boolean startInMultiview )
 	{
 		this.data = data;
 		this.xml = xml;
@@ -132,13 +128,11 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		// set the initial focus to the table
 		panel.table.requestFocus();
 
+		// A single-tile dataset has nothing to stitch, so fall back to Multiview mode;
+		// otherwise always start in Stitching mode.
 		if ( panel.getTableModel().getRowCount() == 1 )
 		{
 			IOFunctions.println( "Only one tile, starting in MultiView mode." );
-			switchMode( Mode.MULTIVIEW );
-		}
-		else if ( startInMultiview )
-		{
 			switchMode( Mode.MULTIVIEW );
 		}
 	}
@@ -169,13 +163,17 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 
 		frame.setTitle( mode == Mode.STITCHING ? "Stitching Explorer" : "Multiview Explorer" );
 		
-		// TODO: is there a smarter way than closing and reopening BDV?
-		boolean bdvWasOpen = panel.bdvPopup() != null && panel.bdvPopup().bdvRunning();
+		// Detect the running BDV via the lazy-aware accessor: getAnyBDVPopup() returns
+		// whichever BasicBDVPopup is registered (eager BDVPopup *or* a lazy popup that
+		// only implements BasicBDVPopup), whereas bdvPopup() only matches BDVPopup and
+		// would miss MVR's LazyBDVPopup on the Multiview panel.
+		final BasicBDVPopup oldPopup = panel.getAnyBDVPopup();
+		boolean bdvWasOpen = oldPopup != null && oldPopup.bdvRunning();
 		BigDataViewer bdvExisting = null;
 		if (bdvWasOpen)
 		{
-			bdvExisting = panel.bdvPopup().getBDV();
-			
+			bdvExisting = oldPopup.getBDV();
+
 			if (mode == Mode.MULTIVIEW)
 			{
 				bdvExisting.getViewer().removeTransformListener( ((StitchingExplorerPanel< AS >) panel).linkOverlay );
@@ -204,8 +202,14 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		frame.pack();
 
 		
-		if (bdvWasOpen && panel.bdvPopup() != null)
-			panel.bdvPopup().setBDV( bdvExisting );
+		// Hand the live BDV to the rebuilt panel's popup. getAnyBDVPopup() finds the
+		// new panel's popup even though its BDV isn't running yet (bdv == null), which
+		// bdvPopup()/runningBdvPopup() cannot do for a lazy (non-BDVPopup) popup. The
+		// lazy setBDV(...) re-wires the selection listener to the new panel; the eager
+		// setBDV(...) just adopts the instance (unchanged behavior).
+		final BasicBDVPopup newPopup = panel.getAnyBDVPopup();
+		if (bdvWasOpen && newPopup != null)
+			newPopup.setBDV( bdvExisting );
 //			for (ActionListener a : panel.bdvPopup().getActionListeners())
 //				a.actionPerformed(( new ActionEvent( this, ActionEvent.ACTION_PERFORMED, null )));
 		
@@ -227,8 +231,11 @@ public class StitchingExplorer< AS extends SpimData2 > extends FilteredAndGroupe
 		try
 		{
 			new Thread(() -> {
-				if ( panel.bdvPopup() != null && panel.bdvPopup().bdvRunning() )
-					panel.bdvPopup().closeBDV();
+				// lazy-aware: close whichever BasicBDVPopup is running (a lazy popup
+				// would be invisible to bdvPopup() and leak its BDV window otherwise).
+				final BasicBDVPopup pop = panel.getAnyBDVPopup();
+				if ( pop != null && pop.bdvRunning() )
+					pop.closeBDV();
 			}).start();
 		}
 		catch( Exception e ) {};
