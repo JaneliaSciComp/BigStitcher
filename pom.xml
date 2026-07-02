@@ -106,7 +106,7 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
-		<multiview-reconstruction.version>9.0.10-SNAPSHOT</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.10</multiview-reconstruction.version>
 
 		<!-- Mirror multiview-reconstruction 9.0.10 (zarrv3) dependency overrides so the
 		     transitive n5/imglib2 versions match what MVR was compiled against.
