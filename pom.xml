@@ -11,7 +11,7 @@
 
 	<groupId>net.preibisch</groupId>
 	<artifactId>BigStitcher</artifactId>
-	<version>3.0.8-SNAPSHOT</version>
+	<version>3.0.9-SNAPSHOT</version>
 
 	<name>Big Stitcher</name>
 	<description>Multiview stitching of large datasets.</description>
