@@ -106,9 +106,9 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
-		<multiview-reconstruction.version>9.0.9</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.10</multiview-reconstruction.version>
 
-		<!-- Mirror multiview-reconstruction 9.0.9 (zarrv3) dependency overrides so the
+		<!-- Mirror multiview-reconstruction 9.0.10 (zarrv3) dependency overrides so the
 		     transitive n5/imglib2 versions match what MVR was compiled against.
 		     TEMP: Until pom-scijava 44.0.0 is updated for ZARRv3. -->
 		<bigdataviewer-core.version>10.6.11</bigdataviewer-core.version>
