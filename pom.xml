@@ -134,20 +134,25 @@
 		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 	</properties>
 
+	<!--
 	<repositories>
 		<repository>
 			<id>scijava.public</id>
 			<url>https://maven.scijava.org/content/groups/public</url>
 		</repository>
-		<!--
-		  Bio-Formats (ome:*) artifacts are only proxied by maven.scijava.org, so builds break
-		  whenever that proxy is unavailable (as it has been since the August 2026 outage, see
-		  https://forum.image.sc/t/maven-scijava-org-unavailable/120874 ).
-		  Pulling them from the upstream OME repository removes that dependency on the proxy.
-		-->
+	</repositories>
+	-->
+
+	<repositories>
 		<repository>
-			<id>ome.releases</id>
-			<url>https://artifacts.openmicroscopy.org/artifactory/ome.releases</url>
+		<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+			<releases><checksumPolicy>fail</checksumPolicy></releases>
+			<snapshots><checksumPolicy>fail</checksumPolicy></snapshots>
+		</repository>
+		<repository>
+			<id>ome</id>
+			<url>https://artifacts.openmicroscopy.org/artifactory/maven</url>
 		</repository>
 	</repositories>
 
