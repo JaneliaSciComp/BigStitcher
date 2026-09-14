@@ -55,20 +55,15 @@ import org.scijava.plugin.PluginIndex;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Menus;
-import ij.gui.GenericDialog;
 import ij.plugin.PlugIn;
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.legacy.io.TextFileAccess;
+import net.preibisch.mvrecon.fiji.plugin.Data_Explorer;
 import net.preibisch.mvrecon.fiji.plugin.Interest_Point_Registration;
 import net.preibisch.mvrecon.fiji.plugin.queryXML.GenericLoadParseQueryXML;
 import net.preibisch.mvrecon.fiji.plugin.queryXML.LoadParseQueryXML;
-import net.preibisch.mvrecon.fiji.plugin.util.GUIHelper;
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.XmlIoSpimData2;
-import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVPopup;
-import net.preibisch.mvrecon.process.interestpointregistration.TransformationTools;
-import net.preibisch.mvrecon.process.interestpointregistration.global.pointmatchcreating.strong.InterestPointMatchCreator;
-import net.preibisch.mvrecon.process.interestpointregistration.pairwise.PairwiseResult;
 import net.preibisch.stitcher.gui.StitchingExplorer;
 
 @Plugin(type = Command.class, menuPath = "Plugins>BigStitcher>BigStitcher")
@@ -78,12 +73,6 @@ public class BigStitcher implements Command, PlugIn
 
 	/** View-count threshold above which the "Large dataset" options dialog appears. */
 	private static final int LARGE_DATASET_THRESHOLD = 100;
-
-	/** View-count threshold above which "Open BigDataViewer at startup" defaults to off. */
-	private static final int LARGE_DATASET_DISABLE_BDV_THRESHOLD = 10_000;
-
-	/** View-count threshold above which the "Use lazy BDV mode" checkbox defaults to checked. */
-	private static final int LARGE_DATASET_LAZY_RECOMMEND_THRESHOLD = 1_000;
 
 	@Override
 	public void run( String arg )
@@ -126,22 +115,10 @@ public class BigStitcher implements Command, PlugIn
 		final int totalViews = data.getSequenceDescription().getViewSetups().size() * data.getSequenceDescription().getTimePoints().size();
 		if ( advanced || totalViews > LARGE_DATASET_THRESHOLD )
 		{
-			final GenericDialog gd = new GenericDialog( "Large dataset" );
-			gd.addMessage( "This dataset has " + totalViews + " views. Opening BigDataViewer for many views can be slow." );
-			gd.addCheckbox( "Open_BigDataViewer_at_startup", totalViews < LARGE_DATASET_DISABLE_BDV_THRESHOLD );
-			gd.addCheckbox( "Use_lazy_BDV_mode (adds & removes views when selected)", totalViews >= LARGE_DATASET_LAZY_RECOMMEND_THRESHOLD );
-			gd.addMessage( "Alignment log settings:", GUIHelper.mediumstatusfont );
-			gd.addNumericField( "Max_per-pair_connection_log_lines", InterestPointMatchCreator.maxPerPairLog, 0 );
-			gd.addNumericField( "Max_per-pair_correspondence-load_log_lines", PairwiseResult.maxPerPairCorrLog, 0 );
-			gd.addNumericField( "Max_per-view_transformation_log_lines", TransformationTools.maxPerViewTransformLog, 0 );
-			gd.showDialog();
-			if ( gd.wasCanceled() )
+			final Boolean openBDVChoice = Data_Explorer.showAdvancedOptionsDialog( totalViews );
+			if ( openBDVChoice == null )
 				return;
-			openBDV = gd.getNextBoolean();
-			BDVPopup.useLazyMode = gd.getNextBoolean();
-			InterestPointMatchCreator.maxPerPairLog = Math.max( 0, ( int ) Math.round( gd.getNextNumber() ) );
-			PairwiseResult.maxPerPairCorrLog = Math.max( 0, ( int ) Math.round( gd.getNextNumber() ) );
-			TransformationTools.maxPerViewTransformLog = Math.max( 0, ( int ) Math.round( gd.getNextNumber() ) );
+			openBDV = openBDVChoice;
 		}
 
 		final StitchingExplorer< SpimData2 > explorer =
