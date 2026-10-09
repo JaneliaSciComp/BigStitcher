@@ -106,12 +106,12 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
-		<multiview-reconstruction.version>9.0.13</multiview-reconstruction.version>
+		<multiview-reconstruction.version>9.0.15</multiview-reconstruction.version>
 
-		<!-- Mirror multiview-reconstruction 9.0.11 (zarrv3) dependency overrides so the
+		<!-- Mirror multiview-reconstruction 9.0.15 (zarrv3) dependency overrides so the
 		     transitive n5/imglib2 versions match what MVR was compiled against.
 		     TEMP: Until pom-scijava 44.0.0 is updated for ZARRv3. -->
-		<bigdataviewer-core.version>10.6.11</bigdataviewer-core.version>
+		<bigdataviewer-core.version>10.6.12</bigdataviewer-core.version>
 		<bigdataviewer-n5.version>1.0.3</bigdataviewer-n5.version>
 		<imglib2-cache.version>1.0.0-beta-20</imglib2-cache.version>
 		<imglib2-realtransform.version>4.0.5</imglib2-realtransform.version>
@@ -147,7 +147,7 @@
 			<artifactId>multiview-reconstruction</artifactId>
 		</dependency>
 
-			<dependency>
+		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>spim_data</artifactId>
 		</dependency>
@@ -155,18 +155,10 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>bigdataviewer-vistools</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-cache</artifactId>
 		</dependency>
 
 		<dependency>
@@ -196,6 +188,15 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>fiji-lib</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-listeners</artifactId>
 		</dependency>
 
 		<dependency>
