@@ -156,7 +156,8 @@ public class TestGlobalOptTwoRound
 				new MetaDataWeakLinkFactory( spimData.getViewRegistrations().getViewRegistrations(), new SimpleBoundingBoxOverlap<>( spimData ) ),
 				new ConvergenceStrategy( Double.MAX_VALUE ),
 				fixed,
-				groupsIn ); //Group.toViewIdGroups( views ) );
+				groupsIn,
+				true ); //Group.toViewIdGroups( views ) );
 
 		computeResults.forEach( ( k, v) -> {
 			System.out.println( Group.pvid( k ) + ": " + Util.printCoordinates( v.getTranslation() ) );
