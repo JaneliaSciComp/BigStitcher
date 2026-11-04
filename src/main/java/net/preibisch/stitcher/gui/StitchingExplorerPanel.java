@@ -581,6 +581,7 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 			addAppleA();
 		addReCenterShortcut(); // 'r' or 'R'
 		addColorMode(); // 'c' or 'C'
+		addIntensityPreviewShortcut(); // 'i' or 'I'
 		addDemoLink(); // 'l' or 'L'
 		addHelp(); // F1
 		addViewSetupIdShortcut(); // 'v' or 'V'

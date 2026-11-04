@@ -52,6 +52,8 @@ import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.type.numeric.ARGBType;
 import net.preibisch.legacy.io.IOFunctions;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.ExplorerWindow;
+import net.preibisch.mvrecon.process.fusion.intensity.IntensityPreview;
+import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.FilteredAndGroupedExplorerPanel;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.GroupedRowWindow;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.bdv.ScrollableBrightnessDialog;
@@ -318,10 +320,17 @@ public class BDVPopupStitching extends BDVPopup
 			options.transformEventHandlerFactory( TransformEventHandler2D::new );
 		}
 
-		BigDataViewer bdv = BigDataViewer.open( panel.getSpimData(), 
-												"BigDataViewer", 
-												null, 
-												options );
+		// sources read through the intensity-correction preview (key 'i'), which passes the raw data through until enabled
+		final BasicImgLoader original = IntensityPreview.install( panel.getSpimData() );
+		final BigDataViewer bdv;
+		try
+		{
+			bdv = BigDataViewer.open( panel.getSpimData(), "BigDataViewer", null, options );
+		}
+		finally
+		{
+			IntensityPreview.restore( panel.getSpimData(), original );
+		}
 
 		BDVPopup.initTransform( bdv.getViewer() );
 		if ( !bdv.tryLoadSettings( panel.xml().toString() ) )
