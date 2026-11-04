@@ -598,7 +598,7 @@ public class ICPRefinement
 							pmc,
 							new ConvergenceStrategy( icpp.getMaxDistance() ),
 							fixedViews,
-							subset.getGroups() );
+							subset.getGroups(), false );
 		}
 		else if ( globalOptParameters.method == GlobalOptType.ONE_ROUND_ITERATIVE )
 		{
@@ -610,7 +610,7 @@ public class ICPRefinement
 							new MaxErrorLinkRemoval(),
 							null,
 							fixedViews,
-							subset.getGroups() );
+							subset.getGroups(), false );
 		}
 		else //if ( globalOptParameters.method == GlobalOptType.TWO_ROUND_SIMPLE || globalOptParameters.method == GlobalOptType.TWO_ROUND_ITERATIVE )
 		{
@@ -626,7 +626,7 @@ public class ICPRefinement
 							new SimpleBoundingBoxOverlap<>( viewSetups, registrations ) ),
 					new ConvergenceStrategy( Double.MAX_VALUE ),
 					fixedViews,
-					subset.getGroups() );
+					subset.getGroups(), false );
 		}
 
 		return models;
@@ -721,7 +721,7 @@ public class ICPRefinement
 							pmc,
 							new ConvergenceStrategy( icpp.getMaxDistance() ),
 							fixedViews,
-							groups );
+							groups, false );
 		}
 		else if ( globalOptParameters.method == GlobalOptType.ONE_ROUND_ITERATIVE )
 		{
@@ -733,7 +733,7 @@ public class ICPRefinement
 							new MaxErrorLinkRemoval(),
 							null,
 							fixedViews,
-							groups );
+							groups, false );
 		}
 		else //if ( globalOptParameters.method == GlobalOptType.TWO_ROUND_SIMPLE || globalOptParameters.method == GlobalOptType.TWO_ROUND_ITERATIVE )
 		{
@@ -749,7 +749,7 @@ public class ICPRefinement
 							new SimpleBoundingBoxOverlap<>( viewSetups, registrations ) ),
 					new ConvergenceStrategy( Double.MAX_VALUE ),
 					fixedViews,
-					groups );
+					groups, false );
 		}
 
 		return models;

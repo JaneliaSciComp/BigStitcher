@@ -754,7 +754,7 @@ public class TransformationTools
 				new ImageCorrelationPointMatchCreator( results, 0.5 ),
 				new ConvergenceStrategy( 5.0 ),
 				fixedViews,
-				viewIds );
+				viewIds, false );
 
 
 	}

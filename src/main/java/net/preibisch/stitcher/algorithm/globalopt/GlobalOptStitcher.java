@@ -201,7 +201,7 @@ public class GlobalOptStitcher
 								data.getViewRegistrations().getViewRegistrations(),
 								new SimpleBoundingBoxOverlap<>( data ) ),
 						new ConvergenceStrategy( Double.MAX_VALUE ), fixed,
-						subset.getGroups() );
+						subset.getGroups(), false );
 
 				globalOptResults.forEach( (k, v) -> System.out.println( k + ": " + v ) );
 				globalOptResults.forEach( (k, v) -> {
@@ -229,7 +229,7 @@ public class GlobalOptStitcher
 								params.relativeThreshold, params.absoluteThreshold ),
 						new MaxErrorLinkRemoval(),
 						removedInconsistentPairs,
-						fixed, subset.getGroups() );
+						fixed, subset.getGroups(), false );
 
 				globalOptResults.forEach( (k, v) -> System.out.println( k + ": " + v ) );
 				globalOptResults.forEach( (k, v) -> {
@@ -253,7 +253,7 @@ public class GlobalOptStitcher
 						new SimpleIterativeConvergenceStrategy( Double.MAX_VALUE,
 								params.relativeThreshold, params.absoluteThreshold ),
 						fixed,
-						subset.getGroups() );
+						subset.getGroups(), false );
 
 				globalOptResults.forEach( (k, v) -> System.out.println( k + ": " + v ) );
 				globalOptResults.forEach( (k, v) -> {
