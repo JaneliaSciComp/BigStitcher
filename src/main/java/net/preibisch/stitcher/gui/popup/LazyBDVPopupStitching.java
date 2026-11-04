@@ -57,6 +57,8 @@ import net.preibisch.mvrecon.fiji.spimdata.explorer.SelectedViewDescriptionListe
 import net.preibisch.mvrecon.fiji.spimdata.explorer.bdv.ScrollableBrightnessDialog;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVPopup;
 import net.preibisch.mvrecon.fiji.spimdata.explorer.popup.BDVSourceNaming;
+import net.preibisch.mvrecon.process.fusion.intensity.IntensityPreview;
+import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.preibisch.stitcher.gui.MaximumProjectorARGB;
 import net.preibisch.stitcher.gui.overlay.LinkOverlay;
 import util.BDVTools;
@@ -230,7 +232,10 @@ public class LazyBDVPopupStitching extends BDVPopup
 		final ArrayList< ConverterSetup > emptyConverterSetups = new ArrayList<>();
 		final ArrayList< SourceAndConverter< ? > > emptySources = new ArrayList<>();
 		final int numTimepoints = seq.getTimePoints().size();
+		// sources read through the intensity-correction preview (key 'i'), see the sources added on selection
+		final BasicImgLoader original = IntensityPreview.install( spimData );
 		final CacheControl cache = ( ( ViewerImgLoader ) seq.getImgLoader() ).getCacheControl();
+		IntensityPreview.restore( spimData, original );
 		final ViewerOptions options = ViewerOptions.options().accumulateProjectorFactory( MaximumProjectorARGB.factory );
 		final BigDataViewer newBdv = new BigDataViewer( emptyConverterSetups, emptySources, spimData,
 				numTimepoints, cache, panel.xml().toString(),
@@ -353,7 +358,16 @@ public class LazyBDVPopupStitching extends BDVPopup
 			final BasicViewSetup setup = seq.getViewSetups().get( id );
 			if ( setup == null )
 				continue;
-			final SourceAndConverter< ? > soc = createSourceAndConverter( spimData, setup );
+			final BasicImgLoader original = IntensityPreview.install( spimData );
+			final SourceAndConverter< ? > soc;
+			try
+			{
+				soc = createSourceAndConverter( spimData, setup );
+			}
+			finally
+			{
+				IntensityPreview.restore( spimData, original );
+			}
 			final ConverterSetup cs = BigDataViewer.createConverterSetup( soc, id );
 
 			if ( addRange == null )
