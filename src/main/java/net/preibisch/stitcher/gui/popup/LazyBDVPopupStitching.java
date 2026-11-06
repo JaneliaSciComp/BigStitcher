@@ -240,6 +240,8 @@ public class LazyBDVPopupStitching extends BDVPopup
 		final BigDataViewer newBdv = new BigDataViewer( emptyConverterSetups, emptySources, spimData,
 				numTimepoints, cache, panel.xml().toString(),
 				IOFunctions.getProgressWriter(), options );
+		// blend mode Custom (the max projector) shows the closest view per voxel while the preview is on
+		IntensityPreview.follow( spimData, newBdv.getViewer() );
 		newBdv.getViewerFrame().setVisible( true );
 		ScrollableBrightnessDialog.setAsBrightnessDialog( newBdv );
 

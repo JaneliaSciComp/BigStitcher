@@ -331,6 +331,8 @@ public class BDVPopupStitching extends BDVPopup
 		{
 			IntensityPreview.restore( panel.getSpimData(), original );
 		}
+		// blend mode Custom (the max projector) shows the closest view per voxel while the preview is on
+		IntensityPreview.follow( panel.getSpimData(), bdv.getViewer() );
 
 		BDVPopup.initTransform( bdv.getViewer() );
 		if ( !bdv.tryLoadSettings( panel.xml().toString() ) )
