@@ -203,7 +203,6 @@ public class StitchingExplorerPanel<AS extends SpimData2 >
 		if ( requestStartBDV && 
 				(ViewerImgLoader.class.isInstance( data.getSequenceDescription().getImgLoader() )
 				|| (FlatfieldCorrectionWrappedImgLoader.class.isInstance(data.getSequenceDescription().getImgLoader()) &&
-						((FlatfieldCorrectionWrappedImgLoader) data.getSequenceDescription().getImgLoader()).isCached() &&
 						((FlatfieldCorrectionWrappedImgLoader) data.getSequenceDescription().getImgLoader()).isActive())
 				|| FractalImgLoader.class.isInstance( data.getSequenceDescription().getImgLoader() ) 
 				|| (( data instanceof SpimData2 ) && ((SpimData2)data).gridMoveRequested )  
