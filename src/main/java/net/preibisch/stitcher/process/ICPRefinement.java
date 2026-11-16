@@ -60,6 +60,7 @@ import net.preibisch.mvrecon.fiji.plugin.interestpointregistration.parameters.Ad
 import net.preibisch.mvrecon.fiji.spimdata.SpimData2;
 import net.preibisch.mvrecon.fiji.spimdata.interestpoints.CorrespondingInterestPoints;
 import net.preibisch.mvrecon.fiji.spimdata.interestpoints.InterestPoint;
+import net.preibisch.mvrecon.fiji.spimdata.interestpoints.InterestPointFilter;
 import net.preibisch.mvrecon.fiji.spimdata.interestpoints.InterestPoints;
 import net.preibisch.mvrecon.fiji.spimdata.stitchingresults.PairwiseLinkImpl;
 import net.preibisch.mvrecon.process.downsampling.DownsampleTools;
@@ -363,10 +364,6 @@ public class ICPRefinement
 
 				dog.sigma = 1.6;
 
-				dog.limitDetections = true;
-				dog.maxDetections = 10000;
-				dog.maxDetectionsTypeIndex = 0; // brightest
-
 				IOFunctions.println( "DoG Threshold = " + dog.threshold );
 				IOFunctions.println( "DoG Sigma = " + dog.sigma );
 
@@ -380,6 +377,9 @@ public class ICPRefinement
 				}
 
 				final HashMap< ViewId, List< InterestPoint > > points = DoG.findInterestPoints( dog );
+
+				// the 10000 strongest detections per view (the detection's own limit was removed in multiview-reconstruction 10)
+				points.replaceAll( ( view, list ) -> InterestPointFilter.limit( list, InterestPointFilter.Axis.RESPONSE, InterestPointFilter.Limit.HIGHEST, 10000, false ) );
 
 				InterestPointTools.addInterestPoints( data, params.label, points, "DoG, sigma=1.4, downsampleXY=" + dog.downsampleXY + ", downsampleZ=" + dog.downsampleZ );
 			}
